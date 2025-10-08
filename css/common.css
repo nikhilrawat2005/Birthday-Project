@@ -1,0 +1,171 @@
+/* All the common styles from your original style.css */
+:root {
+    --ducky-size: clamp(120px, 20vw, 200px);
+    --button-padding: clamp(12px, 3vw, 20px) clamp(20px, 4vw, 40px);
+    --button-font-size: clamp(14px, 4vw, 18px);
+    --heading-font-size: clamp(1.8rem, 6vw, 3rem);
+    --subheading-font-size: clamp(1rem, 3vw, 1.5rem);
+    --body-font-size: clamp(14px, 2.5vw, 18px);
+}
+
+/* --- PATCH (scene & overflow fixes) --- */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* clip animated decorations */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #ffafbd, #ffc3a0);
+    overflow: auto;
+    min-height: 100vh;
+    font-size: var(--body-font-size);
+}
+
+.scene {
+    position: fixed; /* pin to viewport */
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow: hidden; /* important */
+}
+
+.scene.active {
+    display: flex;
+}
+
+.decoration-container, .game-container { 
+    position: relative; 
+    width:100%; 
+    height:100%; 
+    overflow:hidden; 
+}
+
+/* Common button styles */
+.btn {
+    padding: var(--button-padding);
+    font-size: var(--button-font-size);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    font-weight: 600;
+    flex: 1;
+    min-width: 140px;
+    max-width: 250px;
+}
+
+.btn.primary {
+    background: linear-gradient(45deg, #ff6b8b, #ff8e53);
+    color: white;
+    box-shadow: 0 5px 15px rgba(255,107,139,0.4);
+}
+
+.btn.secondary {
+    background: linear-gradient(45deg, #4facfe, #00f2fe);
+    color: white;
+    box-shadow: 0 5px 15px rgba(79,172,254,0.4);
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.button-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    z-index: 10;
+    width: 100%;
+    max-width: 600px;
+}
+
+/* Ducky common styles */
+.ducky-container {
+    position: relative;
+    margin-bottom: 30px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ducky {
+    width: var(--ducky-size);
+    height: var(--ducky-size);
+    transition: transform 0.5s ease;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+    z-index: 20;
+    max-width: clamp(120px, 20vw, 260px);
+    height: auto;
+}
+
+.ducky.talking {
+    animation: bounce 0.5s ease infinite alternate;
+}
+
+@keyframes bounce {
+    from { transform: translateY(0px); }
+    to { transform: translateY(-10px); }
+}
+
+/* Message Board */
+.message-board {
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+    border: 3px solid #ff6b8b;
+    position: relative;
+    backdrop-filter: blur(5px);
+    max-width: min(400px, 90vw);
+    margin-top: 20px;
+    text-align: center;
+    line-height: 1.6;
+    word-wrap: break-word;
+    white-space: normal;
+    font-size: var(--body-font-size);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .scene {
+        padding: 15px;
+        justify-content: space-between;
+    }
+    
+    .button-container {
+        gap: 15px;
+    }
+    
+    .btn {
+        min-width: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .button-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 280px;
+    }
+}

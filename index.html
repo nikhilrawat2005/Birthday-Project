@@ -7,7 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Sacramento&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/landing.css">
 </head>
 <body>
     <!-- Audio Elements -->
@@ -15,7 +16,7 @@
     <audio id="sfx"></audio>
 
     <!-- Landing Page -->
-    <div id="landing-page" class="scene active">
+    <div class="scene active">
         <div class="ducky-container">
             <img src="assets/images/ducky_full.png" alt="Ducky" class="ducky">
             <div class="message-board">
@@ -28,195 +29,8 @@
         </div>
     </div>
 
-    <!-- Empty Page Scene -->
-    <div id="empty-page" class="scene">
-        <!-- No banner, no clouds here - completely empty -->
-        <div class="ducky-container bottom-right">
-            <img src="assets/images/ducky_full.png" alt="Ducky" class="ducky talking">
-            <div class="speech-bubble top-bubble">This looks empty... want to add decorations?</div>
-        </div>
-        <div class="button-container">
-            <button id="add-decoration" class="btn primary" aria-label="Add decorations">Add Decorations! 🎀</button>
-        </div>
-    </div>
-
-    <!-- Decorations Scene -->
-    <div id="decoration-page" class="scene">
-        <!-- Banner and clouds will be added here by JavaScript -->
-        <div class="banner-container"></div>
-        <div class="clouds-container"></div>
-        
-        <div class="decorations">
-            <div class="balloons-container">
-                <!-- Balloons will be added by JavaScript -->
-            </div>
-            <div class="cake-container">
-                <img src="assets/images/cake1.png" alt="Birthday Cake" class="cake">
-            </div>
-        </div>
-        <div class="ducky-container bottom-right">
-            <img src="assets/images/ducky_full.png" alt="Ducky" class="ducky">
-            <div class="speech-bubble top-bubble">We should add balloons too! 🎈</div>
-        </div>
-        <div class="button-container">
-            <button id="add-balloons" class="btn primary" aria-label="Add balloons">Add Balloons! 🎈</button>
-            <button id="add-cake" class="btn primary" style="display:none;" aria-label="Add cake">Add Cake! 🎂</button>
-            <button id="cut-cake" class="btn primary" style="display:none;" aria-label="Cut the cake">Cut the Cake! 🍰</button>
-        </div>
-    </div>
-
-    <!-- Kitty Game Scene -->
-    <div id="game-page" class="scene">
-        <div class="canvas-container">
-            <canvas id="game-canvas" role="application" aria-label="Kitty catching game"></canvas>
-        </div>
-        <div class="game-decorations">
-            <!-- Game decorations will be added by JavaScript -->
-        </div>
-        <div class="game-ui">
-            <div class="score">🐱 <span id="kitty-count">0</span></div>
-            <div class="timer">⏱️ <span id="time-left">60</span>s</div>
-        </div>
-    </div>
-
-    <!-- Transition Scene -->
-    <div id="transition-page" class="scene">
-        <div class="transition-content">
-            <div class="transition-ducky-container">
-                <div class="speech-bubble top-bubble transition-bubble" id="transition-message">
-                    <p>Can I get your <span id="kitty-score">0</span> kitties?</p>
-                    <p>In return I will give you a special reward!</p>
-                </div>
-                <img src="assets/images/ducky_kitty.png" alt="Ducky with Kitty" class="ducky-kitty-image talking">
-            </div>
-        </div>
-        <div class="button-container">
-            <button id="yes-reward" class="btn primary" aria-label="Accept reward">Yes, take them all! 💝</button>
-        </div>
-    </div>
-
-    <!-- Reward Scene -->
-    <div id="reward-page" class="scene">
-        <div class="blog-container">
-            <header class="blog-header">
-                <h1>💖 My Special Message for You 💖</h1>
-                <div class="blog-subtitle">A Collection of Love and Memories</div>
-            </header>
-            
-            <div class="blog-content">
-                <article class="blog-post">
-                    <div class="post-header">
-                        <h2>🎀 To the Most Amazing Person 🎀</h2>
-                        <div class="post-meta">Written with all my love 💕</div>
-                    </div>
-                    
-                    <div class="post-content">
-                        <div class="post-image left-image">
-                            <div class="color-box" style="--box-color: #ff6b8b; --box-dark: #e55a7b;">
-                                <span>Your Beautiful Smile 😊</span>
-                            </div>
-                        </div>
-                        
-                        <p>My dearest love, every day with you feels like a beautiful dream come true. Your smile lights up my world in ways words cannot describe. I still remember the first time I saw you smile - it was like the sun came out after a long rainy day.</p>
-                        
-                        <p>You have this incredible ability to make everything better just by being you. Whether I'm having a tough day or facing challenges, the thought of you brings instant comfort and joy to my heart. 💖</p>
-                        
-                        <div class="kitty-gallery">
-                            <img src="assets/images/kitty_01.png" alt="Cute Kitty 1" class="kitty-img">
-                            <img src="assets/images/kitty_02.png" alt="Cute Kitty 2" class="kitty-img">
-                            <img src="assets/images/kitty_03.png" alt="Cute Kitty 3" class="kitty-img">
-                            <img src="assets/images/kitty_04.png" alt="Cute Kitty 4" class="kitty-img">
-                            <img src="assets/images/kitty_05.png" alt="Cute Kitty 5" class="kitty-img">
-                        </div>
-                        
-                        <p>These little kitties remind me of you - cute, playful, and always bringing happiness wherever they go! Each one represents a beautiful memory we've created together. 🐱</p>
-                        
-                        <div class="post-image right-image">
-                            <div class="color-box" style="--box-color: #4facfe; --box-dark: #3d9bed;">
-                                <span>Our Special Moments ✨</span>
-                            </div>
-                        </div>
-                        
-                        <h3>🌈 Why You're So Special 🌈</h3>
-                        
-                        <ul class="special-list">
-                            <li>💕 Your kind heart that cares for everyone</li>
-                            <li>🌟 Your incredible strength and resilience</li>
-                            <li>😊 The way you find joy in little things</li>
-                            <li>🤗 Your warm hugs that feel like home</li>
-                            <li>🎯 Your determination to achieve your dreams</li>
-                            <li>💝 The love you share so freely</li>
-                        </ul>
-                        
-                        <div class="heart-section">
-                            <div class="floating-heart">💗</div>
-                            <p>I cherish every moment we spend together - from our lazy Sunday mornings to our adventurous outings. Each memory is precious to me, like a beautiful flower in the garden of our love. 🌸</p>
-                        </div>
-                        
-                        <div class="post-image full-image">
-                            <div class="color-box" style="--box-color: #a8e6cf; --box-dark: #97d5be;">
-                                <span>Our Journey Together 🚀</span>
-                            </div>
-                        </div>
-                        
-                        <h3>🎉 Happy Birthday, My Love! 🎉</h3>
-                        
-                        <p>On this special day, I want you to know how much you mean to me. You're not just my love; you're my best friend, my confidant, my partner in crime, and my greatest support.</p>
-                        
-                        <div class="birthday-wishes">
-                            <div class="wish-item">🎂 May your day be filled with joy and laughter!</div>
-                            <div class="wish-item">🎁 May all your dreams and wishes come true!</div>
-                            <div class="wish-item">💫 May this year bring you endless happiness!</div>
-                            <div class="wish-item">🌟 May you always feel loved and cherished!</div>
-                        </div>
-                        
-                        <p>I promise to stand by your side through thick and thin, to support your dreams, to celebrate your successes, and to love you more with each passing day. Our journey together is the most beautiful adventure, and I can't wait to see what the future holds for us. 🚀</p>
-                        
-                        <div class="final-message-box">
-                            <h4>Forever Yours 💕</h4>
-                            <p>No matter where life takes us, always remember that you have my heart. You're the missing piece I never knew I needed, and now that I've found you, I'll never let go.</p>
-                            <p>Happy Birthday to the most wonderful person in my life! May this year be your best one yet, filled with love, laughter, and beautiful memories. 🎈</p>
-                        </div>
-                    </div>
-                    
-                    <div class="post-footer">
-                        <div class="signature">With all my love,</div>
-                        <div class="signature-name">Your Forever Admirer 💝</div>
-                    </div>
-
-                    <!-- New Restart Section at the end of blog -->
-                    <div class="restart-section">
-                        <div class="ducky-container">
-                            <img src="assets/images/ducky_full.png" alt="Ducky" class="ducky">
-                            <div class="message-board">
-                                <p>Wanna restart this beautiful journey?</p>
-                            </div>
-                        </div>
-                        <div class="button-container">
-                            <button id="blog-restart-btn" class="btn primary" aria-label="Restart the experience">Start Again! 💕</button>
-                        </div>
-                    </div>
-                </article>
-            </div>
-        </div>
-    </div>
-
-    <!-- Final Scene -->
-    <div id="final-page" class="scene">
-        <div class="ducky-final">
-            <img src="assets/images/ducky_full.png" alt="Ducky" class="ducky" id="final-ducky">
-        </div>
-        <div class="hearts-container"></div>
-        <div class="final-message">
-            <h2>Thank you for this beautiful journey! 💕</h2>
-            <p>You made my birthday extra special with your love!</p>
-        </div>
-        <div class="button-container">
-            <button id="bye-btn" class="btn primary" aria-label="Say goodbye to Ducky">Say Bye to Ducky! 👋</button>
-            <button id="restart-btn" class="btn secondary" aria-label="Restart the experience">Start Again! 💕</button>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
+    <script type="module" src="js/session.js"></script>
+    <script type="module" src="js/audio.js"></script>
+    <script type="module" src="js/main-index.js"></script>
 </body>
 </html>

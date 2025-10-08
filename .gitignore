@@ -1,0 +1,53 @@
+# --- Ignore backend virtual environment ---
+venv/
+env/
+.venv/
+
+# --- Python cache ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Flask instance & database ---
+instance/
+*.db
+*.sqlite3
+
+# --- Logs and temp files ---
+*.log
+*.tmp
+*.bak
+*.old
+
+# --- Environment and secrets ---
+.env
+.env.*
+*.key
+*.pem
+secrets.json
+config.json
+
+# --- IDE and OS files ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Build and Packaging ---
+build/
+dist/
+*.egg-info/
+.eggs/
+MANIFEST
+
+# --- Test and Coverage ---
+.tox/
+.nox/
+pytest_cache/
+.coverage
+htmlcov/
+
+# --- Misc cache ---
+.cache/
+tmp/

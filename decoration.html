@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Decorations! 🎀</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Sacramento&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/decoration.css">
+</head>
+<body>
+    <!-- Audio Elements -->
+    <audio id="bg-music" loop></audio>
+    <audio id="sfx"></audio>
+
+    <!-- Decorations Scene -->
+    <div class="scene active">
+        <!-- Banner and clouds will be added here by JavaScript -->
+        <div class="banner-container"></div>
+        <div class="clouds-container"></div>
+        
+        <div class="decorations">
+            <div class="balloons-container">
+                <!-- Balloons will be added by JavaScript -->
+            </div>
+            <div class="cake-container">
+                <img src="assets/images/cake1.png" alt="Birthday Cake" class="cake" loading="lazy">
+            </div>
+        </div>
+        
+        <!-- Ducky positioned at bottom right -->
+        <div class="ducky-bottom-right">
+            <img src="assets/images/ducky_full.png" alt="Ducky" class="ducky">
+            <div class="speech-bubble" id="ducky-speech">It feels empty... Let's add some decorations! 🎀</div>
+        </div>
+        
+        <div class="button-container">
+            <button id="add-balloons" class="btn primary" aria-label="Add balloons" style="display:none;">Add Balloons! 🎈</button>
+            <button id="add-cake" class="btn primary" style="display:none;" aria-label="Add cake">Add Cake! 🎂</button>
+            <button id="cut-cake" class="btn primary" style="display:none;" aria-label="Cut the cake">Cut the Cake! 🍰</button>
+        </div>
+    </div>
+
+    <script type="module" src="js/session.js"></script>
+    <script type="module" src="js/audio.js"></script>
+    <script type="module" src="js/decoration.js"></script>
+</body>
+</html>

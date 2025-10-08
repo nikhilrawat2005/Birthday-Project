@@ -1,0 +1,370 @@
+/* Game page specific styles */
+.game-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.canvas-container {
+    width: 100%;
+    max-width: 800px;
+    height: 60vh;
+    max-height: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    aspect-ratio: 4 / 3;
+    height: auto;
+    max-height: 70vh;
+}
+
+#game-canvas {
+    border: 3px solid #ff6b8b;
+    border-radius: 15px;
+    background: linear-gradient(180deg, #87CEEB, #E0F7FF);
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 100%;
+    height: 100%;
+    max-width: 800px;
+    max-height: 600px;
+}
+
+.game-ui {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255,255,255,0.9);
+    padding: 15px;
+    border-radius: 15px;
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 20;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.mute-btn {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background 0.3s;
+}
+
+.mute-btn:hover {
+    background: rgba(0,0,0,0.1);
+}
+
+/* Touch Controls */
+.touch-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 20;
+    display: none;
+}
+
+.touch-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.7);
+    border: 3px solid #ff6b8b;
+    font-size: 2em;
+    color: #ff6b8b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.touch-btn:active {
+    background: rgba(255, 107, 139, 0.3);
+    transform: scale(0.95);
+}
+
+.touch-btn:focus {
+    outline: 3px solid #ff8e53;
+    outline-offset: 2px;
+}
+
+/* Show touch controls on touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .touch-controls {
+        display: flex;
+    }
+}
+
+@media (max-width: 768px) {
+    .touch-controls {
+        display: flex;
+    }
+}
+
+/* Game decorations */
+.game-decorations {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.game-kitty {
+    position: absolute;
+    width: clamp(60px, 10vw, 80px);
+    height: clamp(60px, 10vw, 80px);
+    background: linear-gradient(45deg, #ffd1dc, #ffb6c1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(30px, 5vw, 40px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.game-balloon {
+    position: absolute;
+    width: clamp(40px, 8vw, 60px);
+    height: clamp(50px, 10vw, 80px);
+    background: url('../assets/images/balloon1.png') no-repeat center center;
+    background-size: contain;
+    animation: float 5s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg); 
+    }
+    50% { 
+        transform: translateY(-20px) rotate(5deg);
+    }
+}
+
+/* Game instructions */
+.game-instructions {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255,255,255,0.9);
+    padding: 15px;
+    border-radius: 15px;
+    font-size: clamp(12px, 2.5vw, 14px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 20;
+    max-width: 200px;
+    transition: opacity 0.3s ease;
+}
+
+.game-instructions h3 {
+    color: #ff6b8b;
+    margin-bottom: 8px;
+    font-size: clamp(14px, 3vw, 16px);
+}
+
+.game-instructions ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.game-instructions li {
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* High score display */
+.high-score {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.9);
+    padding: 10px 20px;
+    border-radius: 15px;
+    font-size: clamp(14px, 3vw, 16px);
+    font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 20;
+}
+
+/* Pause overlay */
+.pause-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 30;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.pause-overlay.active {
+    display: flex;
+}
+
+.pause-message {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.pause-message h2 {
+    color: #ff6b8b;
+    margin-bottom: 15px;
+}
+
+/* Orientation warning */
+.orientation-warning {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.9);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 40;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+.orientation-warning.active {
+    display: flex;
+}
+
+.orientation-warning h2 {
+    color: #ff6b8b;
+    margin-bottom: 20px;
+}
+
+/* Game completion overlay */
+.completion-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+    color: white;
+    text-align: center;
+}
+
+.completion-overlay.active {
+    display: flex;
+}
+
+.completion-message {
+    background: linear-gradient(45deg, #ff6b8b, #ff8e53);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    max-width: 400px;
+}
+
+.completion-message h2 {
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+.final-score {
+    font-size: 3em;
+    font-weight: bold;
+    margin: 20px 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Responsive adjustments for game */
+@media (max-width: 480px) {
+    .game-ui {
+        top: 10px;
+        right: 10px;
+        padding: 10px;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .touch-btn {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5em;
+    }
+    
+    .game-instructions {
+        top: 10px;
+        left: 10px;
+        padding: 10px;
+        max-width: 150px;
+    }
+    
+    .high-score {
+        top: 10px;
+        padding: 8px 15px;
+    }
+    
+    .completion-message {
+        padding: 20px;
+        margin: 20px;
+    }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .canvas-container {
+        height: 80vh;
+    }
+    
+    .touch-controls {
+        bottom: 10px;
+    }
+    
+    .touch-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2em;
+    }
+    
+    .game-instructions {
+        max-width: 120px;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .game-balloon {
+        animation: none;
+    }
+    
+    .touch-btn {
+        transition: none;
+    }
+}

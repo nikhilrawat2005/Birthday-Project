@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch the Kitties! 🐱</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Sacramento&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+    <!-- Audio Elements -->
+    <audio id="bg-music" loop></audio>
+    <audio id="sfx"></audio>
+
+    <!-- Kitty Game Scene -->
+    <div class="scene active">
+        <div class="canvas-container">
+            <canvas id="game-canvas" role="application" aria-label="Kitty catching game"></canvas>
+        </div>
+        
+        <!-- Touch Controls for Mobile -->
+        <div class="touch-controls" id="touch-controls">
+            <button class="touch-btn left-btn" aria-label="Move left">←</button>
+            <button class="touch-btn right-btn" aria-label="Move right">→</button>
+        </div>
+        
+        <div class="game-decorations">
+            <!-- Game decorations will be added by JavaScript -->
+        </div>
+        <div class="game-ui">
+            <div class="score">🐱 <span id="kitty-count">0</span></div>
+            <div class="timer">⏱️ <span id="time-left">60</span>s</div>
+            <button id="mute-btn" class="mute-btn" aria-label="Toggle sound">🔊</button>
+        </div>
+    </div>
+
+    <script type="module" src="js/session.js"></script>
+    <script type="module" src="js/audio.js"></script>
+    <script type="module" src="js/input.js"></script>
+    <script type="module" src="js/game.js"></script>
+</body>
+</html>

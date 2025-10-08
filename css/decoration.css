@@ -1,0 +1,374 @@
+/* Decoration page specific styles */
+.decoration-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Banner Styles */
+.banner-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    z-index: 10;
+    padding-top: 20px;
+}
+
+.banner {
+    font-family: 'Sacramento', cursive;
+    font-size: clamp(2rem, 8vw, 4.5rem);
+    color: #fff;
+    text-align: center;
+    margin-bottom: 30px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: all 0.5s ease;
+    z-index: 10;
+    background: linear-gradient(45deg, #ff6b8b, #ff8e53);
+    padding: 10px 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.banner.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Cloud Styles */
+.clouds-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    overflow: hidden;
+}
+
+.cloud {
+    position: absolute;
+    left: -30%;
+    transform: translateX(0);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    padding: 15px 20px;
+    font-size: clamp(12px, 3vw, 16px);
+    color: #333;
+    text-align: center;
+    max-width: min(150px, 30vw);
+    animation: floatCloud 18s linear infinite;
+    animation-fill-mode: both;
+    will-change: transform, opacity;
+    opacity: 0;
+    top: 20% !important;
+}
+
+.cloud.show {
+    opacity: 1;
+}
+
+.cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+}
+
+.cloud::before {
+    width: 30px;
+    height: 30px;
+    top: -15px;
+    left: 20px;
+}
+
+.cloud::after {
+    width: 40px;
+    height: 40px;
+    top: -20px;
+    right: 20px;
+}
+
+@keyframes floatCloud {
+    0% { 
+        transform: translateX(-30vw);
+        opacity: 0;
+    }
+    5% {
+        opacity: 1;
+    }
+    95% {
+        opacity: 1;
+    }
+    100% { 
+        transform: translateX(120vw);
+        opacity: 0;
+    }
+}
+
+/* Balloon Styles */
+.balloons-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 8;
+}
+
+.balloon {
+    position: absolute;
+    width: clamp(40px, 8vw, 60px);
+    height: clamp(50px, 10vw, 80px);
+    background: radial-gradient(circle at 30% 30%, var(--balloon-color), var(--balloon-dark));
+    border-radius: 50%;
+    animation: balloonFloat 8s ease-in-out infinite;
+    bottom: -100px;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    transform-origin: center bottom;
+}
+
+.balloon::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 40px;
+    background: #333;
+}
+
+@keyframes balloonFloat {
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg); 
+        bottom: -100px;
+    }
+    50% { 
+        transform: translateY(-20px) rotate(5deg);
+        bottom: 100vh;
+    }
+}
+
+/* Cake Container */
+.cake-container {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 6vh;
+    z-index: 12;
+    max-width: 40vw;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.cake-container.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.cake {
+    width: var(--cake-size);
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    filter: drop-shadow(0 8px 15px rgba(0,0,0,0.3));
+    max-width: clamp(120px, 20vw, 260px);
+    height: auto;
+}
+
+.cake:hover {
+    transform: scale(1.1);
+}
+
+/* Ducky Bottom Right Position */
+.ducky-bottom-right {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 25;
+}
+
+.ducky-bottom-right .ducky {
+    width: clamp(80px, 15vw, 150px);
+    height: auto;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.2));
+}
+
+.ducky-bottom-right .speech-bubble {
+    background: white;
+    padding: 12px 18px;
+    border-radius: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    margin-bottom: 15px;
+    border: 3px solid #ff6b8b;
+    position: relative;
+    max-width: min(250px, 70vw);
+    text-align: center;
+    font-size: clamp(12px, 3vw, 16px);
+    line-height: 1.4;
+}
+
+.ducky-bottom-right .speech-bubble::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    right: 30px;
+    border: 10px solid transparent;
+    border-top-color: #ff6b8b;
+}
+
+/* Explosion Effect */
+.explosion {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 15;
+}
+
+.particle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ff6b8b;
+    border-radius: 50%;
+    animation: explode 1s ease-out forwards;
+}
+
+@keyframes explode {
+    to {
+        transform: translate(var(--tx), var(--ty)) rotate(var(--r));
+        opacity: 0;
+    }
+}
+
+/* Confetti */
+.confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    opacity: 0.8;
+    animation: confettiFall 5s linear forwards;
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Decoration Controls */
+.decoration-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    z-index: 20;
+    flex-wrap: wrap;
+}
+
+/* Progress indicator */
+.decoration-progress {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255,255,255,0.9);
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 0.9em;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.progress-steps {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.progress-step {
+    width: 20px;
+    height: 5px;
+    background: #ddd;
+    border-radius: 3px;
+    transition: background 0.3s ease;
+}
+
+.progress-step.active {
+    background: #ff6b8b;
+}
+
+/* Responsive adjustments for decoration page */
+@media (max-width: 768px) {
+    .banner {
+        padding: 8px 20px;
+        margin-bottom: 20px;
+    }
+    
+    .decoration-controls {
+        bottom: 10px;
+        gap: 10px;
+    }
+    
+    .decoration-progress {
+        top: 10px;
+        left: 10px;
+        padding: 8px 12px;
+    }
+    
+    .ducky-bottom-right {
+        bottom: 10px;
+        right: 10px;
+    }
+    
+    .ducky-bottom-right .ducky {
+        width: clamp(60px, 12vw, 120px);
+    }
+}
+
+@media (max-width: 480px) {
+    .banner {
+        font-size: clamp(1.5rem, 6vw, 2.5rem);
+        padding: 5px 15px;
+    }
+    
+    .cloud {
+        padding: 10px 15px;
+        font-size: 12px;
+    }
+    
+    .balloon {
+        width: 30px;
+        height: 40px;
+    }
+    
+    .ducky-bottom-right .speech-bubble {
+        max-width: 200px;
+        padding: 10px 15px;
+    }
+}
