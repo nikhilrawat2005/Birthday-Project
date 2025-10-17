@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Your Special Reward! 💝</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Sacramento&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/result.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Sacramento&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/common.css" />
+    <link rel="stylesheet" href="css/result.css" />
 </head>
 <body>
     <!-- Audio Elements -->
@@ -25,53 +25,40 @@
                 </div>
                 <img src="assets/images/ducky_kitty.png" alt="Ducky with Kitty" class="ducky-kitty-image talking" loading="lazy">
             </div>
-        </div>
-        <div class="button-container">
-            <button id="yes-reward" class="btn primary" aria-label="Accept reward">Yes, take them all! 💝</button>
+
+            <div class="button-container">
+                <button id="yes-reward" class="btn primary" aria-label="Accept reward">Yes, take it! 💝</button>
+            </div>
         </div>
     </div>
 
-    <!-- Reward Scene -->
-    <div id="reward-scene" class="scene">
-        <div class="blog-container">
-            <header class="blog-header">
-                <h1>💖 My Special Message for You 💖</h1>
-                <div class="blog-subtitle">A Collection of Love and Memories</div>
-            </header>
-            
-            <div class="blog-content">
-                <article class="blog-post">
-                    <!-- Blog content same as before -->
-                    <div class="post-content" id="blog-content">
-                        <!-- Content will be loaded from backend -->
+    <!-- Password Modal -->
+    <div id="password-backdrop" class="modal-backdrop" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔐 Enter Secret Password</h3>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description">Enter the password to unlock your special gift! ✨</p>
+                
+                <form id="password-form" class="password-form">
+                    <div class="input-group">
+                        <input type="password" id="password-input" placeholder="Enter password..." required>
+                        <div class="input-decoration">🔒</div>
                     </div>
                     
-                    <!-- Guestbook Section -->
-                    <div class="guestbook-section">
-                        <h3>💌 Leave a Sweet Message</h3>
-                        <form id="guestbook-form" class="guestbook-form">
-                            <input type="text" id="guest-name" name="name" placeholder="Your name" required aria-label="Your name">
-                            <textarea id="guest-message" name="message" placeholder="Your sweet message..." required aria-label="Your message"></textarea>
-                            <button type="submit" class="btn primary">Send Message 💕</button>
-                        </form>
-                        <div id="guestbook-messages" class="guestbook-messages">
-                            <!-- Messages will be loaded here -->
-                        </div>
+                    <div id="password-error" class="error-message" style="display: none;">
+                        ❌ Invalid password! Try again.
                     </div>
-
-                    <!-- Restart Section -->
-                    <div class="restart-section">
-                        <div class="ducky-container">
-                            <img src="assets/images/ducky_full.png" alt="Ducky" class="ducky" loading="lazy">
-                            <div class="message-board">
-                                <p>Wanna restart this beautiful journey?</p>
-                            </div>
-                        </div>
-                        <div class="button-container">
-                            <button id="blog-restart-btn" class="btn primary" aria-label="Restart the experience">Start Again! 💕</button>
-                        </div>
+                    
+                    <div class="password-actions">
+                        <button type="submit" class="btn primary submit-password">
+                            <span class="btn-text">Unlock Gift 🎁</span>
+                            <div class="loading-spinner" style="display: none;"></div>
+                        </button>
+                        <button type="button" class="btn secondary cancel-password">Cancel</button>
                     </div>
-                </article>
+                </form>
             </div>
         </div>
     </div>

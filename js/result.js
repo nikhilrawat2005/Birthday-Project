@@ -1,321 +1,261 @@
+// js/result.js
 import sessionManager from './session.js';
 import audioManager from './audio.js';
 
 class ResultPage {
     constructor() {
         this.currentScene = 'transition-scene';
-        this.guestbookMessages = [];
         this.config = null;
+
+        this.pageMappingByScore = [
+            { min: 0, max: 4, page: 'blog1' },
+            { min: 5, max: 9, page: 'blog2' },
+            { min: 10, max: 14, page: 'blog3' },
+            { min: 15, max: 19, page: 'blog4' },
+            { min: 20, max: 9999, page: 'blog5' }
+        ];
+
         this.init();
     }
 
     async init() {
-        await this.loadSessionData();
-        this.setupScenes();
-        this.bindEvents();
-        this.loadConfig();
-        this.loadGuestbookMessages();
-        audioManager.playBg('bg_soft_ambient.mp3');
+        try {
+            await this.loadSessionData();
+            this.setupScenes();
+            this.bindEvents();
+            audioManager.playBg && audioManager.playBg('bg_soft_ambient.mp3');
+        } catch (err) {
+            console.error('ResultPage init error:', err);
+        }
     }
 
     async loadSessionData() {
         const session = await sessionManager.getSession();
-        if (session && session.state && session.state.game) {
-            document.getElementById('kitty-score').textContent = session.state.game.score || 0;
+
+        // session may be null (no backend & no local fallback)
+        // support both shapes:
+        // 1) session.state.game.score  (preferred)
+        // 2) session.game.score (older/alternate)
+        let score = 0;
+        if (session) {
+            if (session.state && session.state.game && typeof session.state.game.score !== 'undefined') {
+                score = session.state.game.score;
+            } else if (session.game && typeof session.game.score !== 'undefined') {
+                score = session.game.score;
+            } else {
+                // fallback: check localStorage directly (extra safety)
+                try {
+                    const localDataRaw = localStorage.getItem('birthdayLocalData');
+                    if (localDataRaw) {
+                        const localData = JSON.parse(localDataRaw);
+                        if (localData.game && typeof localData.game.score !== 'undefined') {
+                            score = localData.game.score;
+                        }
+                        else if (localData.state && localData.state.game && typeof localData.state.game.score !== 'undefined') {
+                            score = localData.state.game.score;
+                        }
+                    }
+                } catch (err) {
+                    console.warn('Error reading fallback localData in result page:', err);
+                }
+            }
         }
+
+        const scoreEl = document.getElementById('kitty-score');
+        if (scoreEl) scoreEl.textContent = score || 0;
+    }
+
+    extractScoreFromState(state) {
+        if (!state || typeof state !== 'object') return null;
+        const candidates = [
+            state.kitty,
+            state.kitties,
+            state.score,
+            state.points,
+            state.game && state.game.score,
+            state.progress && state.progress.kitty,
+            state.progress && state.progress.score
+        ];
+        for (const c of candidates) if (c !== undefined && c !== null && !isNaN(Number(c))) return Number(c);
+        try {
+            const json = JSON.stringify(state);
+            const m = json.match(/"kitty"\s*:\s*(\d+)/i) || json.match(/"kitties"\s*:\s*(\d+)/i) || json.match(/"score"\s*:\s*(\d+)/i);
+            if (m) return Number(m[1]);
+        } catch { }
+        return null;
     }
 
     setupScenes() {
-        this.scenes = {
-            'transition-scene': document.getElementById('transition-scene'),
-            'reward-scene': document.getElementById('reward-scene')
-        };
+        this.scenes = { 'transition-scene': document.getElementById('transition-scene') };
     }
 
     bindEvents() {
-        // Transition to reward scene
-        document.getElementById('yes-reward').addEventListener('click', () => {
-            audioManager.playSfx('sfx_click.mp3');
-            this.showRewardScene();
+        const yesBtn = document.getElementById('yes-reward');
+        if (yesBtn) yesBtn.addEventListener('click', () => {
+            audioManager.playSfx && audioManager.playSfx('sfx_click.mp3');
+            this.startRevealSequence();
         });
 
-        // Guestbook form submission
-        document.getElementById('guestbook-form').addEventListener('submit', (e) => {
+        const passwordForm = document.getElementById('password-form');
+        if (passwordForm) passwordForm.addEventListener('submit', e => {
             e.preventDefault();
-            this.submitGuestbookMessage();
+            this.verifyPassword();
         });
 
-        // Restart buttons
-        document.getElementById('blog-restart-btn').addEventListener('click', () => {
-            this.restartExperience();
+        const cancelBtn = document.querySelector('.cancel-password');
+        if (cancelBtn) cancelBtn.addEventListener('click', () => {
+            this.hidePasswordModal();
+            audioManager.playSfx && audioManager.playSfx('sfx_click.mp3');
         });
 
-        // Keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && this.currentScene === 'transition-scene') {
-                this.showRewardScene();
-            }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && this.currentScene === 'transition-scene') this.startRevealSequence();
+            if (e.key === 'Escape' && document.getElementById('password-backdrop')?.classList.contains('active')) this.hidePasswordModal();
         });
     }
 
-    showRewardScene() {
-        // Animate transition
-        const duckyKitty = document.querySelector('.ducky-kitty-image');
-        const speechBubble = document.querySelector('.transition-bubble');
-        
-        if (duckyKitty) {
-            duckyKitty.style.transition = 'all 1s ease';
-            duckyKitty.style.transform = 'translateX(-100vw)';
-        }
-        
-        if (speechBubble) {
-            speechBubble.style.transition = 'all 1s ease';
-            speechBubble.style.transform = 'translateX(-100vw)';
-        }
-        
-        setTimeout(() => {
-            this.showScene('reward-scene');
-            // Scroll to top when showing reward page
-            document.querySelector('.blog-container').scrollTop = 0;
-        }, 1000);
+    startRevealSequence() {
+        const score = window.kittyScore || parseInt(document.getElementById('kitty-score')?.dataset.score || '0', 10);
+        const chosen = this.choosePageForScore(score);
+        const submitBtn = document.querySelector('.submit-password');
+        if (submitBtn) submitBtn.dataset.targetPage = chosen;
+        const transitionContent = document.querySelector('.transition-content');
+        if (transitionContent) transitionContent.classList.add('slide-out');
+        setTimeout(() => this.showPasswordModal(), 700);
     }
 
-    showScene(sceneName) {
-        // Hide all scenes
-        Object.values(this.scenes).forEach(scene => {
-            if (scene) scene.classList.remove('active');
-        });
-        
-        // Show target scene
-        if (this.scenes[sceneName]) {
-            this.scenes[sceneName].classList.add('active');
-        }
-        this.currentScene = sceneName;
+    showPasswordModal() {
+        const backdrop = document.getElementById('password-backdrop');
+        const input = document.getElementById('password-input');
+        const errorBox = document.getElementById('password-error');
+        if (backdrop) backdrop.classList.add('active');
+        if (input) input.value = '';
+        setTimeout(() => input?.focus(), 300);
+        if (errorBox) errorBox.style.display = 'none';
     }
 
-    async loadConfig() {
-        this.config = await sessionManager.getConfig();
-        if (this.config && this.config.blogContent) {
-            this.renderBlogContent();
-        }
+    hidePasswordModal() {
+        const backdrop = document.getElementById('password-backdrop');
+        if (backdrop) backdrop.classList.remove('active');
     }
 
-    renderBlogContent() {
-        const blogContent = document.getElementById('blog-content');
-        if (!blogContent || !this.config.blogContent) return;
+    async verifyPassword() {
+        const passwordInput = document.getElementById('password-input');
+        const submitBtn = document.querySelector('.submit-password');
+        const btnText = submitBtn?.querySelector('.btn-text');
+        const spinner = submitBtn?.querySelector('.loading-spinner');
+        const errorDiv = document.getElementById('password-error');
+        const password = passwordInput?.value.trim() || '';
+        const targetPage = submitBtn?.dataset.targetPage || 'blog1';
+        if (!password) return this.showPasswordError('Please enter a password');
 
-        let html = '';
-
-        // Render sections based on type
-        this.config.blogContent.sections.forEach(section => {
-            switch (section.type) {
-                case 'paragraph':
-                    html += `<p>${section.content}</p>`;
-                    break;
-                case 'heading':
-                    html += `<h3>${section.content}</h3>`;
-                    break;
-                case 'image':
-                    html += `
-                        <div class="post-image ${section.position || 'full-image'}">
-                            <div class="color-box" style="--box-color: ${section.color || '#ff6b8b'}; --box-dark: ${section.darkColor || '#e55a7b'}">
-                                <span>${section.caption || ''}</span>
-                            </div>
-                        </div>
-                    `;
-                    break;
-                case 'gallery':
-                    html += `
-                        <div class="kitty-gallery">
-                            ${section.images ? section.images.map(img => `
-                                <img src="${img.src}" alt="${img.alt}" class="kitty-img" loading="lazy">
-                            `).join('') : ''}
-                        </div>
-                    `;
-                    break;
-                case 'list':
-                    html += `
-                        <ul class="special-list">
-                            ${section.items ? section.items.map(item => `<li>${item}</li>`).join('') : ''}
-                        </ul>
-                    `;
-                    break;
-                case 'wishes':
-                    html += `
-                        <div class="birthday-wishes">
-                            ${section.wishes ? section.wishes.map(wish => `
-                                <div class="wish-item">${wish}</div>
-                            `).join('') : ''}
-                        </div>
-                    `;
-                    break;
-            }
-        });
-
-        // Add final message box
-        html += `
-            <div class="final-message-box">
-                <h4>Forever Yours 💕</h4>
-                <p>No matter where life takes us, always remember that you have my heart. You're the missing piece I never knew I needed, and now that I've found you, I'll never let go.</p>
-                <p>Happy Birthday to the most wonderful person in my life! May this year be your best one yet, filled with love, laughter, and beautiful memories. 🎈</p>
-            </div>
-        `;
-
-        blogContent.innerHTML = html;
-    }
-
-    async loadGuestbookMessages() {
-        try {
-            const response = await sessionManager.getMessages();
-            this.guestbookMessages = response.messages || [];
-            this.renderGuestbookMessages();
-        } catch (error) {
-            console.error('Failed to load guestbook messages:', error);
-            // Try to load local messages as fallback
-            this.guestbookMessages = await sessionManager.getLocalMessages();
-            this.renderGuestbookMessages();
-        }
-    }
-
-    renderGuestbookMessages() {
-        const container = document.getElementById('guestbook-messages');
-        if (!container) return;
-
-        if (this.guestbookMessages.length === 0) {
-            container.innerHTML = `
-                <div class="no-messages">
-                    <p>No messages yet. Be the first to leave a sweet message! 💕</p>
-                </div>
-            `;
-            return;
-        }
-
-        container.innerHTML = this.guestbookMessages.map(message => `
-            <div class="guestbook-message">
-                <div class="message-header">
-                    <span class="message-author">${this.escapeHtml(message.name)}</span>
-                    <span class="message-time">${this.formatTime(message.created_at)}</span>
-                </div>
-                <div class="message-content">${this.escapeHtml(message.message)}</div>
-            </div>
-        `).join('');
-
-        // Scroll to bottom
-        container.scrollTop = container.scrollHeight;
-    }
-
-    async submitGuestbookMessage() {
-        const form = document.getElementById('guestbook-form');
-        const nameInput = document.getElementById('guest-name');
-        const messageInput = document.getElementById('guest-message');
-        const submitBtn = form.querySelector('button[type="submit"]');
-
-        const name = nameInput.value.trim();
-        const message = messageInput.value.trim();
-
-        if (!name || !message) {
-            this.showMessage('Please fill in both name and message fields.', 'error');
-            return;
-        }
-
-        // Disable form and show loading
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="loading-spinner"></span>Sending...';
-        form.classList.add('loading');
+        if (btnText) btnText.style.display = 'none';
+        if (spinner) spinner.style.display = 'block';
+        if (submitBtn) submitBtn.disabled = true;
+        if (errorDiv) errorDiv.style.display = 'none';
 
         try {
-            await sessionManager.submitMessage(name, message);
-            
-            // Success
-            this.showMessage('Message sent successfully! 💕', 'success');
-            nameInput.value = '';
-            messageInput.value = '';
-            
-            // Reload messages
-            await this.loadGuestbookMessages();
-            
-        } catch (error) {
-            this.showMessage('Failed to send message. Please try again.', 'error');
+            const response = await fetch('/api/unlock-page', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ page: targetPage, password })
+            });
+            const data = await response.json();
+            if (data.ok) {
+                audioManager.playSfx && audioManager.playSfx('sfx_success_jingle.mp3');
+                this.showSuccessAnimation();
+                setTimeout(() => window.location.href = data.url, 1200);
+            } else {
+                audioManager.playSfx && audioManager.playSfx('sfx_error.mp3');
+                this.showPasswordError(data.error || 'Invalid password');
+                this.shakePasswordModal();
+            }
+        } catch (e) {
+            console.error('Password verification failed:', e);
+            audioManager.playSfx && audioManager.playSfx('sfx_error.mp3');
+            this.showPasswordError('Network error. Please try again.');
+            this.shakePasswordModal();
         } finally {
-            // Re-enable form
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Send Message 💕';
-            form.classList.remove('loading');
+            if (btnText) btnText.style.display = 'block';
+            if (spinner) spinner.style.display = 'none';
+            if (submitBtn) submitBtn.disabled = false;
         }
     }
 
-    showMessage(text, type) {
-        // Remove existing messages
-        const existingMessages = document.querySelectorAll('.success-message, .error-message');
-        existingMessages.forEach(msg => msg.remove());
-
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `${type}-message`;
-        messageDiv.textContent = text;
-
-        const guestbookSection = document.querySelector('.guestbook-section');
-        if (guestbookSection) {
-            guestbookSection.insertBefore(messageDiv, guestbookSection.querySelector('#guestbook-messages'));
+    showPasswordError(message) {
+        const errorDiv = document.getElementById('password-error');
+        if (errorDiv) {
+            errorDiv.textContent = `❌ ${message}`;
+            errorDiv.style.display = 'block';
         }
-
-        // Auto-remove after 5 seconds
-        setTimeout(() => {
-            messageDiv.remove();
-        }, 5000);
     }
 
-    async restartExperience() {
-        audioManager.playSfx('sfx_click.mp3');
-        
-        // Show loading state
-        const restartBtn = document.getElementById('blog-restart-btn');
-        const originalText = restartBtn.textContent;
-        restartBtn.innerHTML = '<span class="loading-spinner"></span>Restarting...';
-        restartBtn.disabled = true;
+    shakePasswordModal() {
+        const modal = document.querySelector('.modal-content');
+        if (!modal) return;
+        modal.classList.add('shake');
+        setTimeout(() => modal.classList.remove('shake'), 500);
+    }
 
-        try {
-            await sessionManager.resetSession();
-            
-            // Navigate back to landing page
+    showSuccessAnimation() {
+        const modal = document.querySelector('.modal-content');
+        if (modal) {
+            modal.style.animation = 'successPulse 0.6s ease-in-out';
+            setTimeout(() => modal.style.animation = '', 600);
+        }
+        this.createConfetti();
+    }
+
+    createConfetti() {
+        const container = document.createElement('div');
+        container.className = 'confetti-container';
+        container.style.position = 'fixed';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.width = '100%';
+        container.style.height = '100%';
+        container.style.pointerEvents = 'none';
+        container.style.zIndex = '1001';
+        document.body.appendChild(container);
+
+        const colors = ['#ff6b8b', '#ff8e53', '#4facfe', '#00f2fe', '#a8e6cf', '#dcedc1'];
+        const emojis = ['🎉', '✨', '🌟', '💫', '🎊', '💖'];
+
+        for (let i = 0; i < 30; i++) {
             setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1000);
-            
-        } catch (error) {
-            console.error('Restart failed:', error);
-            restartBtn.textContent = originalText;
-            restartBtn.disabled = false;
-            this.showMessage('Failed to restart. Please try again.', 'error');
+                const confetti = document.createElement('div');
+                confetti.style.position = 'absolute';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.fontSize = `${Math.random() * 20 + 15}px`;
+                confetti.style.opacity = '0.8';
+                confetti.style.animation = `confettiFall ${Math.random() * 2 + 1}s ease-out forwards`;
+
+                if (Math.random() > 0.5) {
+                    confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                } else {
+                    confetti.style.width = '10px';
+                    confetti.style.height = '10px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.borderRadius = '50%';
+                }
+
+                container.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 2200);
+            }, i * 50);
         }
+
+        setTimeout(() => container.remove(), 3000);
     }
 
-    escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    formatTime(isoString) {
-        const date = new Date(isoString);
-        const now = new Date();
-        const diffMs = now - date;
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMs / 3600000);
-        const diffDays = Math.floor(diffMs / 86400000);
-
-        if (diffMins < 1) return 'Just now';
-        if (diffMins < 60) return `${diffMins}m ago`;
-        if (diffHours < 24) return `${diffHours}h ago`;
-        if (diffDays < 7) return `${diffDays}d ago`;
-        
-        return date.toLocaleDateString();
+    choosePageForScore(score) {
+        for (const mapping of this.pageMappingByScore) {
+            if (score >= mapping.min && score <= mapping.max) return mapping.page;
+        }
+        return this.pageMappingByScore[0].page;
     }
 }
 
-// Initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => new ResultPage());
 } else {

@@ -1,20 +1,31 @@
-from flask import Flask, request, jsonify, send_from_directory, send_file
+from flask import Flask, request, jsonify, send_from_directory, send_file, abort
 from flask_cors import CORS
 import uuid
 import time
 import json
 import os
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict
 import logging
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Get the project root directory (one level up from backend)
+# Project root directory (one level up from backend)
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 logger.info(f"Serving files from: {BASE_DIR}")
+
+# Password management
+PASSWORDS_FILE = os.path.join(BASE_DIR, 'passwords.json')
+def load_passwords():
+    try:
+        with open(PASSWORDS_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.warning(f"Could not load passwords.json: {e}")
+        return {}
+password_map = load_passwords()
 
 app = Flask(__name__)
 CORS(app)
@@ -25,12 +36,12 @@ class Config:
     MAX_MESSAGES = 1000
     MAX_SCORES = 1000
 
-# Storage (in production, use Redis or database)
+# Storage
 sessions: Dict[str, Dict] = {}
 scores = []
 messages = []
 
-# Default configuration
+# Default configuration (unchanged) ...
 default_config = {
     'bannerText': 'Happy Birthday, My Love!',
     'assets': {
@@ -90,21 +101,19 @@ default_config = {
     }
 }
 
+# Cleanup old sessions (unchanged)
 def cleanup_old_sessions():
-    """Remove sessions older than timeout"""
     current_time = datetime.now()
     expired_sessions = []
-    
     for session_id, session in sessions.items():
         last_seen = datetime.fromisoformat(session['last_seen'])
         if (current_time - last_seen).total_seconds() > Config.SESSION_TIMEOUT:
             expired_sessions.append(session_id)
-    
     for session_id in expired_sessions:
         del sessions[session_id]
         logger.info(f"Cleaned up expired session: {session_id}")
 
-# Serve static files from the project root
+# Serve static files
 @app.route('/')
 def serve_index():
     try:
@@ -116,18 +125,14 @@ def serve_index():
 @app.route('/<path:path>')
 def serve_static(path):
     try:
-        # Security: prevent directory traversal
         if '..' in path or path.startswith('/'):
             return "Invalid path", 400
-            
         full_path = os.path.join(BASE_DIR, path)
-        
-        # Check if file exists
         if os.path.isfile(full_path):
             return send_from_directory(BASE_DIR, path)
         else:
-            # If it's an HTML page that doesn't exist, serve index.html for SPA routing
             if path.endswith('.html'):
+                # fallback to index.html for SPA-like routes
                 return send_file(os.path.join(BASE_DIR, 'index.html'))
             else:
                 return "File not found", 404
@@ -135,7 +140,7 @@ def serve_static(path):
         logger.error(f"Error serving {path}: {e}")
         return "File not found", 404
 
-# Specific routes for HTML pages to handle direct navigation
+# HTML Pages (explicit routes)
 @app.route('/index.html')
 def serve_index_html():
     return serve_index()
@@ -152,20 +157,42 @@ def serve_game():
 def serve_result():
     return send_file(os.path.join(BASE_DIR, 'result.html'))
 
-# Serve CSS files
+# === NEW: Serve root-level blog pages like /blog1.html safely ===
+@app.route('/<pagename>.html')
+def serve_root_html(pagename):
+    # prevent traversal or accidental capture of internal routes
+    if '/' in pagename or '..' in pagename or pagename.startswith('.'):
+        return "Invalid page", 400
+    candidate = os.path.join(BASE_DIR, f"{pagename}.html")
+    if os.path.isfile(candidate):
+        return send_file(candidate)
+    # if not found, fall back to index for SPA behavior
+    return send_file(os.path.join(BASE_DIR, 'index.html'))
+
+# CSS/JS/Assets
 @app.route('/css/<path:filename>')
 def serve_css(filename):
     return send_from_directory(os.path.join(BASE_DIR, 'css'), filename)
 
-# Serve JS files
 @app.route('/js/<path:filename>')
 def serve_js(filename):
     return send_from_directory(os.path.join(BASE_DIR, 'js'), filename)
 
-# Serve assets
 @app.route('/assets/<path:filename>')
 def serve_assets(filename):
     return send_from_directory(os.path.join(BASE_DIR, 'assets'), filename)
+
+# Blog pages (kept for legacy/blogs folder if you still use it)
+@app.route('/blogs/<page>/<path:filename>')
+def serve_blogs(page, filename):
+    safe_dir = os.path.join(BASE_DIR, 'blogs', page)
+    if '..' in filename or filename.startswith('/'):
+        return "Invalid path", 400
+    file_path = os.path.join(safe_dir, filename)
+    if os.path.isfile(file_path):
+        return send_from_directory(safe_dir, filename)
+    else:
+        return "File not found", 404
 
 # API Routes
 @app.route('/api/health')
@@ -175,7 +202,6 @@ def health_check():
 @app.route('/api/session/create', methods=['POST'])
 def create_session():
     cleanup_old_sessions()
-    
     session_id = str(uuid.uuid4())
     sessions[session_id] = {
         'id': session_id,
@@ -188,18 +214,32 @@ def create_session():
             }
         }
     }
-    
     logger.info(f"Created new session: {session_id}")
     return jsonify({'sessionId': session_id})
 
 @app.route('/api/session/<session_id>', methods=['GET'])
 def get_session(session_id):
     cleanup_old_sessions()
-    
     session = sessions.get(session_id)
+
+    # Allow client to ask server to create session if missing:
+    create_if_missing = request.args.get('create', 'false').lower() in ('1', 'true', 'yes')
+
     if not session:
+        logger.info(f"Session {session_id} not found. create_if_missing={create_if_missing}")
+        if create_if_missing:
+            # Create session using the requested id (keeps client's sid stable)
+            sessions[session_id] = {
+                'id': session_id,
+                'created_at': datetime.now().isoformat(),
+                'last_seen': datetime.now().isoformat(),
+                'state': {}
+            }
+            logger.info(f"Auto-created session: {session_id}")
+            return jsonify(sessions[session_id]), 201
+
         return jsonify({'error': 'Session not found'}), 404
-    
+
     session['last_seen'] = datetime.now().isoformat()
     return jsonify(session)
 
@@ -208,22 +248,17 @@ def update_session(session_id):
     session = sessions.get(session_id)
     if not session:
         return jsonify({'error': 'Session not found'}), 404
-    
     data = request.get_json()
     if not data:
         return jsonify({'error': 'No data provided'}), 400
-    
-    # Deep merge update
     def deep_merge(target: Dict, source: Dict):
         for key, value in source.items():
             if isinstance(value, dict) and key in target and isinstance(target[key], dict):
                 deep_merge(target[key], value)
             else:
                 target[key] = value
-    
     deep_merge(session['state'], data)
     session['last_seen'] = datetime.now().isoformat()
-    
     logger.info(f"Updated session {session_id}")
     return jsonify(session)
 
@@ -231,8 +266,6 @@ def update_session(session_id):
 def reset_session(session_id):
     if session_id not in sessions:
         return jsonify({'error': 'Session not found'}), 404
-    
-    # Create new session
     new_session_id = str(uuid.uuid4())
     sessions[new_session_id] = {
         'id': new_session_id,
@@ -240,72 +273,68 @@ def reset_session(session_id):
         'last_seen': datetime.now().isoformat(),
         'state': {}
     }
-    
-    # Remove old session
     del sessions[session_id]
-    
     logger.info(f"Reset session {session_id} -> {new_session_id}")
     return jsonify({'sessionId': new_session_id})
 
 @app.route('/api/score', methods=['POST'])
 def add_score():
     data = request.get_json()
-    
     if not data or 'score' not in data:
         return jsonify({'error': 'Score is required'}), 400
-    
-    # Limit scores storage
+
+    session_id = data.get('sessionId')
+    score_value = data['score']
+
     if len(scores) >= Config.MAX_SCORES:
         scores.pop(0)
-    
+
     score_record = {
         'id': str(uuid.uuid4()),
-        'session_id': data.get('sessionId'),
-        'score': data['score'],
+        'session_id': session_id,
+        'score': score_value,
         'meta': data.get('meta', {}),
         'created_at': datetime.now().isoformat()
     }
-    
     scores.append(score_record)
+
+    if session_id in sessions:
+        sessions[session_id].setdefault('state', {})
+        sessions[session_id]['state']['score'] = score_value
+
     scores.sort(key=lambda x: x['score'], reverse=True)
-    
-    logger.info(f"New score: {score_record['score']}")
+    logger.info(f"New score: {score_value}")
     return jsonify(score_record)
 
 @app.route('/api/scores', methods=['GET'])
 def get_scores():
+    session_id = request.args.get('sessionId')
+    if session_id:
+        session_scores = [s for s in scores if s['session_id'] == session_id]
+    else:
+        session_scores = scores[:10]
     return jsonify({
-        'scores': scores[:10],
-        'total': len(scores)
+        'scores': session_scores,
+        'total': len(session_scores)
     })
 
 @app.route('/api/messages', methods=['GET'])
 def get_messages():
-    return jsonify({
-        'messages': messages[-50:],
-        'total': len(messages)
-    })
+    return jsonify({'messages': messages[-50:], 'total': len(messages)})
 
 @app.route('/api/messages', methods=['POST'])
 def add_message():
     data = request.get_json()
-    
     if not data or not data.get('name') or not data.get('message'):
         return jsonify({'error': 'Name and message are required'}), 400
-    
-    # Limit messages storage
     if len(messages) >= Config.MAX_MESSAGES:
         messages.pop(0)
-    
-    # Basic content validation
     name = data['name'].strip()
     message = data['message'].strip()
-    
     if len(name) > 50:
         return jsonify({'error': 'Name too long'}), 400
     if len(message) > 500:
         return jsonify({'error': 'Message too long'}), 400
-    
     message_record = {
         'id': str(uuid.uuid4()),
         'session_id': data.get('sessionId'),
@@ -313,9 +342,7 @@ def add_message():
         'message': message,
         'created_at': datetime.now().isoformat()
     }
-    
     messages.append(message_record)
-    
     logger.info(f"New message from {name}")
     return jsonify(message_record)
 
@@ -323,10 +350,31 @@ def add_message():
 def get_config():
     return jsonify(default_config)
 
+@app.route('/api/unlock-page', methods=['POST'])
+def unlock_page():
+    data = request.get_json() or {}
+    page = (data.get('page') or '').strip()
+    password = data.get('password') or ''
+    if not page:
+        return jsonify({'ok': False, 'error': 'Page is required'}), 400
+    global password_map
+    try:
+        password_map = load_passwords()
+    except Exception:
+        pass
+    expected = password_map.get(page)
+    if not expected:
+        return jsonify({'ok': False, 'error': 'Page not configured'}), 404
+    if password == expected:
+        # RETURN root-level page like /blog1.html (you moved blog1.html to BASE_DIR)
+        target_url = f"/{page}.html"
+        return jsonify({'ok': True, 'url': target_url})
+    else:
+        return jsonify({'ok': False, 'error': 'Incorrect password'}), 401
+
 @app.route('/api/stats', methods=['GET'])
 def get_stats():
     cleanup_old_sessions()
-    
     return jsonify({
         'sessions': {
             'total': len(sessions),
@@ -338,15 +386,12 @@ def get_stats():
         'uptime': time.time() - app.start_time
     })
 
-# Initialize app start time
+# App start time
 app.start_time = time.time()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     debug = os.environ.get('DEBUG', 'False').lower() == 'true'
-    
     logger.info(f"Starting Birthday Surprise Backend on port {port}")
     logger.info(f"Base directory: {BASE_DIR}")
-    logger.info(f"Files in base directory: {os.listdir(BASE_DIR)}")
-    
     app.run(debug=debug, port=port, host='0.0.0.0')

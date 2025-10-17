@@ -16,14 +16,27 @@ class SessionManager {
         this.sessionId = urlParams.get('sid') || localStorage.getItem('birthdaySessionId');
 
         if (!this.sessionId) {
+            // No id at all — create new session on server
             this.sessionId = await this.createSession();
         } else {
-            // Verify session exists
+            // We have an id — verify it exists on server.
+            // Use create=true to let server auto-create if missing (safer)
             try {
-                await this.getSession();
+                const session = await this.getSession({ createIfMissing: true });
+                if (!session) {
+                    // If server didn't return session for some reason, create one
+                    console.log('Server did not return session object; creating new session.');
+                    this.sessionId = await this.createSession();
+                }
             } catch (error) {
-                console.log('Session invalid, creating new one');
-                this.sessionId = await this.createSession();
+                console.log('Session verification failed, creating new one locally then trying to create on server', error);
+                // fallback: create new server session (or generate local id if network is down)
+                try {
+                    this.sessionId = await this.createSession();
+                } catch (e) {
+                    // final fallback: local id
+                    this.sessionId = 'local-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                }
             }
         }
 
@@ -40,27 +53,70 @@ class SessionManager {
                     'Content-Type': 'application/json',
                 }
             });
-            
+
             if (!response.ok) throw new Error('Failed to create session');
-            
+
             const data = await response.json();
-            return data.sessionId;
+            // server returns { sessionId: ... }
+            const sid = data.sessionId || data.session_id || data.id;
+            if (!sid) throw new Error('Invalid session create response');
+
+            // set sessionId and optionally fetch the full session object to confirm
+            this.sessionId = sid;
+
+            // Try to GET the session (server should have created it)
+            try {
+                await this.getSession();
+            } catch (e) {
+                // not critical; continue with sessionId anyway
+                console.warn('Could not verify created session immediately:', e);
+            }
+
+            return this.sessionId;
         } catch (error) {
             console.error('Session creation failed:', error);
             // Fallback: generate local session ID
-            return 'local-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            const localSid = 'local-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            this.sessionId = localSid;
+            return this.sessionId;
         }
     }
 
-    async getSession() {
+    async getSession(options = {}) {
+        // options: { createIfMissing: boolean }
         if (!this.sessionId) return null;
-        
+
         try {
-            const response = await fetch(`${this.apiBase}/session/${this.sessionId}`);
-            if (!response.ok) throw new Error('Session not found');
+            let url = `${this.apiBase}/session/${this.sessionId}`;
+            if (options.createIfMissing) {
+                url += '?create=true';
+            }
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                // if 404 -> throw to upstream so caller can decide to create
+                throw new Error(`Session API returned ${response.status}`);
+            }
+
             return await response.json();
         } catch (error) {
-            console.error('Failed to get session:', error);
+            console.error('Failed to get session from API:', error);
+
+            // === Local fallback: check localStorage for saved session state ===
+            try {
+                const localDataRaw = localStorage.getItem('birthdayLocalData');
+                if (localDataRaw) {
+                    const localData = JSON.parse(localDataRaw);
+                    if (localData.state) {
+                        return localData;
+                    } else {
+                        return { state: localData };
+                    }
+                }
+            } catch (localErr) {
+                console.error('Failed to read local session fallback:', localErr);
+            }
+
             return null;
         }
     }
