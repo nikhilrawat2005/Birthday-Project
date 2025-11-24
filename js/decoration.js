@@ -12,81 +12,150 @@ class DecorationPage {
     async init() {
         await this.loadSessionState();
         this.bindEvents();
-        this.startDecorationFlow();
         audioManager.playBg('bg_party_happy.mp3');
+        
+        // REMOVED: this.startDecorationFlow() - Now only called from loadSessionState when needed
     }
 
     async loadSessionState() {
         const session = await sessionManager.getSession();
-        if (session && session.state && session.state.decoration) {
+        
+        // Check if we have existing decoration state
+        const hasDecorationState = session && session.state && session.state.decoration;
+        
+        if (hasDecorationState) {
             const decoration = session.state.decoration;
+            
+            // Restore banner if it was added
             if (decoration.bannerAdded) {
                 this.addBannerAndClouds();
             }
+            
+            // Restore balloons if they were added
             if (decoration.balloonsAdded) {
                 this.addBalloons();
                 document.getElementById('add-balloons').style.display = 'none';
+                document.getElementById('add-cake').style.display = 'block';
                 this.currentStep = 1;
+                this.updateDuckySpeech("Balloons perfect lag rahe hain! Ab sabse important cheez — ek cute sa cake add karte hain 🎂");
             }
+            
+            // Restore cake if it was added
             if (decoration.cakeAdded) {
                 this.showCake();
+                document.getElementById('add-balloons').style.display = 'none';
                 document.getElementById('add-cake').style.display = 'none';
                 document.getElementById('cut-cake').style.display = 'block';
                 this.currentStep = 2;
+                this.updateDuckySpeech("Cake set ho gaya! Ab tumhare liye ek special cake-cutting moment banate hain 🍰");
             }
+            
+            // If cake was cut, we should have navigated away, but handle just in case
+            if (decoration.cakeCut) {
+                this.updateDuckySpeech("Cake cut ho gaya, ab asli surprise ke game ke liye ready ho jao! 🎁");
+            }
+            
+            // Update duck message based on current state
+            this.updateDuckyMessageForState();
+            
         } else {
+            // No existing state - start fresh decoration flow
             this.startDecorationFlow();
         }
     }
 
     bindEvents() {
+        // Add Balloons button
         document.getElementById('add-balloons').addEventListener('click', () => {
-            this.addBalloons();
-            this.createBalloonConfetti();
-            document.getElementById('add-balloons').style.display = 'none';
-            document.getElementById('add-cake').style.display = 'block';
-            audioManager.playSfx('sfx_click.mp3');
-            
-            this.updateSessionState({ 
-                balloonsAdded: true 
-            });
-            
-            // CHANGED: Enhanced message
-            this.updateDuckySpeech("Balloons perfect lag rahe hain! Ab sabse important cheez — ek cute sa cake add karte hain 🎂");
+            this.handleAddBalloons();
         });
 
+        // Add Cake button
         document.getElementById('add-cake').addEventListener('click', () => {
-            this.showCake();
-            document.getElementById('add-cake').style.display = 'none';
-            document.getElementById('cut-cake').style.display = 'block';
-            audioManager.playSfx('sfx_click.mp3');
-            
-            this.updateSessionState({ 
-                cakeAdded: true 
-            });
-            
-            // CHANGED: Enhanced message
-            this.updateDuckySpeech("Cake set ho gaya! Ab tumhare liye ek special cake-cutting moment banate hain 🍰");
+            this.handleAddCake();
         });
 
+        // Cut Cake button
         document.getElementById('cut-cake').addEventListener('click', () => {
-            audioManager.playSfx('sfx_cake_boom.mp3');
-            this.createExplosion();
-            this.createConfetti();
-            this.createFloatingHearts(); // NEW: Added floating hearts
-
-            // CHANGED: Enhanced message
-            this.updateDuckySpeech("Cake cut ho gaya, ab asli surprise ke game ke liye ready ho jao! 🎁");
-            
-            this.updateSessionState({ 
-                cakeCut: true 
-            });
-            
-            setTimeout(() => {
-                audioManager.playBg('bg_game_loop.mp3');
-                sessionManager.navigateTo('game');
-            }, 2000);
+            this.handleCutCake();
         });
+    }
+
+    // NEW: Separate handler functions with button disabling
+    async handleAddBalloons() {
+        const button = document.getElementById('add-balloons');
+        button.disabled = true;
+        
+        this.addBalloons();
+        this.createBalloonConfetti();
+        document.getElementById('add-balloons').style.display = 'none';
+        document.getElementById('add-cake').style.display = 'block';
+        audioManager.playSfx('sfx_click.mp3');
+        
+        await this.updateSessionState({ 
+            balloonsAdded: true 
+        });
+        
+        // CHANGED: Enhanced message
+        this.updateDuckySpeech("Balloons perfect lag rahe hain! Ab sabse important cheez — ek cute sa cake add karte hain 🎂");
+        
+        setTimeout(() => {
+            button.disabled = false;
+        }, 1000);
+    }
+
+    async handleAddCake() {
+        const button = document.getElementById('add-cake');
+        button.disabled = true;
+        
+        this.showCake();
+        document.getElementById('add-cake').style.display = 'none';
+        document.getElementById('cut-cake').style.display = 'block';
+        audioManager.playSfx('sfx_click.mp3');
+        
+        await this.updateSessionState({ 
+            cakeAdded: true 
+        });
+        
+        // CHANGED: Enhanced message
+        this.updateDuckySpeech("Cake set ho gaya! Ab tumhare liye ek special cake-cutting moment banate hain 🍰");
+        
+        setTimeout(() => {
+            button.disabled = false;
+        }, 1000);
+    }
+
+    async handleCutCake() {
+        const button = document.getElementById('cut-cake');
+        button.disabled = true;
+        
+        audioManager.playSfx('sfx_cake_boom.mp3');
+        this.createExplosion();
+        this.createConfetti();
+        this.createFloatingHearts();
+
+        // CHANGED: Enhanced message
+        this.updateDuckySpeech("Cake cut ho gaya, ab asli surprise ke game ke liye ready ho jao! 🎁");
+        
+        await this.updateSessionState({ 
+            cakeCut: true 
+        });
+        
+        setTimeout(() => {
+            audioManager.playBg('bg_game_loop.mp3');
+            sessionManager.navigateTo('game');
+        }, 2000);
+    }
+
+    // NEW: Update duck message based on current state
+    updateDuckyMessageForState() {
+        if (this.cakeAdded) {
+            this.updateDuckySpeech("Cake set ho gaya! Ab tumhare liye ek special cake-cutting moment banate hain 🍰");
+        } else if (this.balloonsAdded) {
+            this.updateDuckySpeech("Balloons perfect lag rahe hain! Ab sabse important cheez — ek cute sa cake add karte hain 🎂");
+        } else {
+            this.updateDuckySpeech("Yaha sab thoda khali sa lag raha hai... chalo tumhare liye perfect decorations banate hain 🎀");
+        }
     }
 
     startDecorationFlow() {

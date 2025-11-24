@@ -11,12 +11,24 @@ class SessionManager {
     }
 
     async getOrCreateSession() {
-        // Try to get session from URL or localStorage
+        // Check for fresh session request
         const urlParams = new URLSearchParams(window.location.search);
+        const freshSession = urlParams.get('fresh') === '1';
+        
+        if (freshSession) {
+            // Clear local storage and create new session
+            this.clearLocalStorage();
+            // Remove fresh param from URL
+            const url = new URL(window.location);
+            url.searchParams.delete('fresh');
+            window.history.replaceState({}, '', url);
+        }
+
+        // Try to get session from URL or localStorage
         this.sessionId = urlParams.get('sid') || localStorage.getItem('birthdaySessionId');
 
-        if (!this.sessionId) {
-            // No id at all — create new session on server
+        if (!this.sessionId || freshSession) {
+            // No id or fresh session requested — create new session on server
             this.sessionId = await this.createSession();
         } else {
             // We have an id — verify it exists on server.
@@ -43,6 +55,22 @@ class SessionManager {
         localStorage.setItem('birthdaySessionId', this.sessionId);
         this.updateUrlWithSession();
         return this.sessionId;
+    }
+
+    // NEW: Clear all local storage for fresh start
+    clearLocalStorage() {
+        const keysToRemove = [
+            'birthdaySessionId',
+            'birthdayLocalData',
+            'birthdayLocalScores',
+            'birthdayLocalMessages',
+            'birthday_bg',
+            'birthday_muted'
+        ];
+        
+        keysToRemove.forEach(key => {
+            localStorage.removeItem(key);
+        });
     }
 
     async createSession() {
@@ -163,6 +191,13 @@ class SessionManager {
         }
     }
 
+    // NEW: Method to completely reset everything for fresh journey
+    async startFreshJourney() {
+        this.clearLocalStorage();
+        this.sessionId = null;
+        await this.getOrCreateSession();
+    }
+
     storeLocal(updates) {
         const localData = JSON.parse(localStorage.getItem('birthdayLocalData') || '{}');
         localStorage.setItem('birthdayLocalData', JSON.stringify({...localData, ...updates}));
@@ -181,6 +216,13 @@ class SessionManager {
         if (this.sessionId) {
             url.searchParams.set('sid', this.sessionId);
         }
+        window.location.href = url.toString();
+    }
+
+    // NEW: Navigate with fresh session
+    navigateToFresh(page) {
+        const url = new URL(`${page}.html`, window.location.origin);
+        url.searchParams.set('fresh', '1');
         window.location.href = url.toString();
     }
 

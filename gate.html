@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Journey 💌</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Sacramento&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/gate.css">
+</head>
+<body>
+    <div class="gate-container">
+        <!-- Ducky with Message -->
+        <div class="gate-ducky-container">
+            <img src="assets/images/ducky_full.png" alt="Ducky" class="gate-ducky">
+            <div class="gate-message-board">
+                <p>This is a secret journey just for you. Enter the magic password 💌</p>
+            </div>
+        </div>
+
+        <!-- Password Form -->
+        <div class="password-form-container">
+            <form id="gate-password-form" class="gate-password-form">
+                <div class="input-group">
+                    <input type="password" id="gate-password-input" placeholder="Enter password..." required>
+                    <div class="input-decoration">🔒</div>
+                </div>
+                
+                <div id="gate-password-error" class="error-message" style="display: none;">
+                    ❌ Invalid password! Try again.
+                </div>
+                
+                <button type="submit" class="btn primary gate-submit-btn">
+                    <span class="btn-text">Start the Journey 💫</span>
+                    <div class="loading-spinner" style="display: none;"></div>
+                </button>
+            </form>
+        </div>
+
+        <!-- Secret Note -->
+        <div class="secret-note">
+            <p>P.S. Keep this link safe, sirf tumhare liye hai 🤫</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('gate-password-form');
+            const passwordInput = document.getElementById('gate-password-input');
+            const errorDiv = document.getElementById('gate-password-error');
+            const submitBtn = form.querySelector('.gate-submit-btn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const spinner = submitBtn.querySelector('.loading-spinner');
+
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const password = passwordInput.value.trim();
+                if (!password) {
+                    showError('Please enter password');
+                    return;
+                }
+
+                // Show loading state
+                btnText.style.display = 'none';
+                spinner.style.display = 'block';
+                submitBtn.disabled = true;
+                errorDiv.style.display = 'none';
+
+                try {
+                    const response = await fetch('/api/unlock-page', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            page: 'index',
+                            password: password
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.ok) {
+                        // Success - show animation and redirect
+                        document.querySelector('.gate-ducky').classList.add('success');
+                        document.querySelector('.gate-message-board').classList.add('success');
+                        
+                        setTimeout(() => {
+                            window.location.href = data.url;
+                        }, 1000);
+                    } else {
+                        showError(data.error || 'Invalid password');
+                        shakeForm();
+                    }
+                } catch (error) {
+                    console.error('Password verification failed:', error);
+                    showError('Network error. Please try again.');
+                    shakeForm();
+                } finally {
+                    // Reset loading state
+                    btnText.style.display = 'block';
+                    spinner.style.display = 'none';
+                    submitBtn.disabled = false;
+                }
+            });
+
+            function showError(message) {
+                errorDiv.textContent = `❌ ${message}`;
+                errorDiv.style.display = 'block';
+            }
+
+            function shakeForm() {
+                form.classList.add('shake');
+                setTimeout(() => {
+                    form.classList.remove('shake');
+                }, 500);
+            }
+
+            // Focus on password input
+            setTimeout(() => {
+                passwordInput.focus();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

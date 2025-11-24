@@ -1,0 +1,230 @@
+/* Gate page specific styles */
+.gate-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.gate-ducky-container {
+    position: relative;
+    margin-bottom: 40px;
+    text-align: center;
+}
+
+.gate-ducky {
+    width: clamp(120px, 25vw, 180px);
+    height: auto;
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3));
+    transition: all 0.5s ease;
+}
+
+.gate-ducky.success {
+    transform: scale(1.1) rotate(5deg);
+    filter: drop-shadow(0 12px 30px rgba(255,255,255,0.3));
+}
+
+.gate-message-board {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 25px 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+    margin-top: 25px;
+    border: 3px solid #ff6b8b;
+    backdrop-filter: blur(10px);
+    max-width: min(400px, 90vw);
+    text-align: center;
+    line-height: 1.6;
+    font-size: clamp(16px, 4vw, 18px);
+    color: #333;
+    transition: all 0.5s ease;
+}
+
+.gate-message-board.success {
+    background: rgba(168, 230, 207, 0.95);
+    border-color: #4CAF50;
+    transform: scale(1.02);
+}
+
+.password-form-container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+    max-width: min(400px, 90vw);
+    width: 100%;
+}
+
+.gate-password-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group {
+    position: relative;
+}
+
+#gate-password-input {
+    width: 100%;
+    padding: 18px 50px 18px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+    font-family: 'Poppins', sans-serif;
+}
+
+#gate-password-input:focus {
+    outline: none;
+    border-color: #ff6b8b;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 107, 139, 0.1);
+    transform: translateY(-2px);
+}
+
+.input-decoration {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.3em;
+    color: #666;
+}
+
+.gate-submit-btn {
+    padding: 18px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(45deg, #ff6b8b, #ff8e53);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+}
+
+.gate-submit-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(255,107,139,0.4);
+}
+
+.gate-submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #ff6b8b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error-message {
+    background: #ffd1d1;
+    color: #d32f2f;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid #ff8a8a;
+    font-size: 14px;
+}
+
+.secret-note {
+    margin-top: 30px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    font-style: italic;
+}
+
+/* Shake animation */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+
+.shake {
+    animation: shake 0.4s ease-in-out;
+}
+
+/* Floating elements for decoration */
+.floating-heart {
+    position: absolute;
+    font-size: 20px;
+    opacity: 0.7;
+    pointer-events: none;
+    animation: floatHeart 6s ease-in-out infinite;
+}
+
+@keyframes floatHeart {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        transform: translateY(-100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .gate-container {
+        padding: 15px;
+    }
+    
+    .password-form-container {
+        padding: 20px;
+    }
+    
+    .gate-message-board {
+        padding: 20px 25px;
+        margin-top: 20px;
+    }
+    
+    #gate-password-input {
+        padding: 15px 45px 15px 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .gate-ducky {
+        width: 100px;
+    }
+    
+    .gate-message-board {
+        padding: 15px 20px;
+        font-size: 15px;
+    }
+    
+    .password-form-container {
+        padding: 15px;
+    }
+    
+    .secret-note {
+        font-size: 12px;
+    }
+}

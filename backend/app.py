@@ -113,9 +113,18 @@ def cleanup_old_sessions():
         del sessions[session_id]
         logger.info(f"Cleaned up expired session: {session_id}")
 
-# Serve static files
+# Serve gate page for root
 @app.route('/')
-def serve_index():
+def serve_gate():
+    try:
+        return send_file(os.path.join(BASE_DIR, 'gate.html'))
+    except Exception as e:
+        logger.error(f"Error serving gate.html: {e}")
+        return "Gate file not found", 404
+
+# Serve main index page
+@app.route('/index.html')
+def serve_main_page():
     try:
         return send_file(os.path.join(BASE_DIR, 'index.html'))
     except Exception as e:
@@ -132,8 +141,8 @@ def serve_static(path):
             return send_from_directory(BASE_DIR, path)
         else:
             if path.endswith('.html'):
-                # fallback to index.html for SPA-like routes
-                return send_file(os.path.join(BASE_DIR, 'index.html'))
+                # fallback to gate.html for SPA-like routes
+                return send_file(os.path.join(BASE_DIR, 'gate.html'))
             else:
                 return "File not found", 404
     except Exception as e:
@@ -141,10 +150,6 @@ def serve_static(path):
         return "File not found", 404
 
 # HTML Pages (explicit routes)
-@app.route('/index.html')
-def serve_index_html():
-    return serve_index()
-
 @app.route('/decoration.html')
 def serve_decoration():
     return send_file(os.path.join(BASE_DIR, 'decoration.html'))
@@ -166,8 +171,8 @@ def serve_root_html(pagename):
     candidate = os.path.join(BASE_DIR, f"{pagename}.html")
     if os.path.isfile(candidate):
         return send_file(candidate)
-    # if not found, fall back to index for SPA behavior
-    return send_file(os.path.join(BASE_DIR, 'index.html'))
+    # if not found, fall back to gate for SPA behavior
+    return send_file(os.path.join(BASE_DIR, 'gate.html'))
 
 # CSS/JS/Assets
 @app.route('/css/<path:filename>')
@@ -366,8 +371,11 @@ def unlock_page():
     if not expected:
         return jsonify({'ok': False, 'error': 'Page not configured'}), 404
     if password == expected:
-        # RETURN root-level page like /blog1.html (you moved blog1.html to BASE_DIR)
-        target_url = f"/{page}.html"
+        # RETURN root-level page based on page name
+        if page == 'index':
+            target_url = f"/index.html"
+        else:
+            target_url = f"/{page}.html"
         return jsonify({'ok': True, 'url': target_url})
     else:
         return jsonify({'ok': False, 'error': 'Incorrect password'}), 401

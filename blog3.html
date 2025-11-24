@@ -49,7 +49,6 @@
             <section class="story-section" id="childhood">
                 <div class="section-content">
                     <div class="text-content">
-                        <!-- CHANGED: Enhanced childhood paragraph -->
                         <p class="story-paragraph">
                             Here's my cute little baccha — jo childhood se hi itni adorable rahi hai. 
                             Ghar me sabse badi hoke bhi sabse zyada responsible, sabke liye stand lene wali. 
@@ -89,7 +88,6 @@
             <section class="story-section" id="phadi-look">
                 <div class="section-content reverse">
                     <div class="text-content">
-                        <!-- CHANGED: Enhanced phadi paragraph -->
                         <p class="story-paragraph">
                             Ye cute pyaara baccha mera technically non–phadi hai, 
                             lekin jab phadi look me aati hai na… sach me pahadiyon ki bhi cheekhein nikal jaayein! 😭🔥 
@@ -128,7 +126,6 @@
             <section class="story-section" id="gifts-memories">
                 <div class="section-content">
                     <div class="text-content">
-                        <!-- CHANGED: Enhanced gifts paragraph -->
                         <p class="story-paragraph">
                             Some of our most beautiful moments woh din the, 
                             jab main tumhare liye sunflowers lekar aaya tha 🌻 
@@ -176,7 +173,6 @@
             <section class="story-section" id="food-nicknames">
                 <div class="section-content reverse">
                     <div class="text-content">
-                        <!-- CHANGED: Enhanced food paragraph -->
                         <p class="story-paragraph">
                             Mere bacchu ke haathon se banaya hua khana — by god, 
                             har baar jab tumhare bheje hue food pics dekhta hu na, 
@@ -271,7 +267,6 @@
 
             <!-- Final Closing Note -->
             <div class="closing-note">
-                <!-- CHANGED: Enhanced closing message -->
                 <div class="handwritten-message">
                     Forever yours.  
                     Thank you for turning my zindagi into a place 
@@ -279,6 +274,26 @@
                     Happy 18th birthday, my Kittu — 
                     I love you more than words, more than distance, 
                     aur in saari pages se bhi zyada. ❤️
+                </div>
+            </div>
+
+            <!-- Enhanced Repeat Journey Section -->
+            <div class="journey-repeat-section">
+                <div class="repeat-container">
+                    <div class="repeat-ducky-container">
+                        <img src="assets/images/ducky_full.png" alt="Ducky" class="repeat-ducky">
+                        <div class="repeat-speech-bubble">
+                            <p>Didi, kya tum yeh pyaara journey dobara experience karna chahti ho? 🐤💕</p>
+                            <p class="repeat-subtext">Fresh start hoga with all new surprises!</p>
+                        </div>
+                    </div>
+                    <button class="btn primary repeat-journey-btn" id="repeat-journey-btn">
+                        Start Fresh Journey 💫
+                    </button>
+                    <div class="repeat-loading" id="repeat-loading" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <span>Preparing your special journey...</span>
+                    </div>
                 </div>
             </div>
 
@@ -304,14 +319,57 @@
     </div>
 
     <script src="js/blog3.js"></script>
-    <script>
+    <script type="module">
+        import sessionManager from './js/session.js';
+        
+        // Enhanced repeat journey function
+        async function repeatJourney() {
+            const button = document.getElementById('repeat-journey-btn');
+            const loading = document.getElementById('repeat-loading');
+            
+            // Show loading state
+            button.style.display = 'none';
+            loading.style.display = 'flex';
+            
+            try {
+                // Stop audio
+                const audio = document.getElementById('bg-music');
+                if (audio) {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }
+                
+                // Add a small delay for better UX
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Navigate to fresh journey
+                window.location.href = '/index.html?fresh=1';
+                
+            } catch (error) {
+                console.error('Error repeating journey:', error);
+                // Fallback to simple redirect
+                window.location.href = '/index.html';
+            }
+        }
+
+        // Initialize repeat journey button
+        document.addEventListener('DOMContentLoaded', function() {
+            const repeatBtn = document.getElementById('repeat-journey-btn');
+            if (repeatBtn) {
+                repeatBtn.addEventListener('click', repeatJourney);
+            }
+        });
+
         function toggleAudio() {
             const audio = document.getElementById('bg-music');
             const button = document.querySelector('.audio-control');
             
             if (audio.paused) {
-                audio.play();
-                button.textContent = '🔊';
+                audio.play().then(() => {
+                    button.textContent = '🔊';
+                }).catch(error => {
+                    console.log('Audio play failed:', error);
+                });
             } else {
                 audio.pause();
                 button.textContent = '🎵';

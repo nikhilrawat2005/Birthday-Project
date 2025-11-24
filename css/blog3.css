@@ -510,7 +510,7 @@ html, body {
     cursor: pointer;
 }
 
-/* Closing Note - Fixed positioning issue */
+/* Closing Note */
 .closing-note {
     margin: 80px 0;
     text-align: center;
@@ -537,6 +537,137 @@ html, body {
     margin: 0 auto;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     box-shadow: var(--shadow-soft);
+}
+
+/* Enhanced Repeat Journey Section */
+.journey-repeat-section {
+    margin: 80px 0 40px;
+    text-align: center;
+}
+
+.repeat-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(10px);
+    max-width: 500px;
+    margin: 0 auto;
+    border: 3px solid #ff6b8b;
+}
+
+.repeat-ducky-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.repeat-ducky {
+    width: clamp(100px, 20vw, 140px);
+    height: auto;
+    filter: drop-shadow(0 5px 15px rgba(0,0,0,0.2));
+    animation: gentleBounce 3s ease-in-out infinite;
+}
+
+@keyframes gentleBounce {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(3deg); }
+}
+
+.repeat-speech-bubble {
+    background: white;
+    padding: 20px 25px;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border: 3px solid #ff6b8b;
+    position: relative;
+    max-width: 300px;
+    text-align: center;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+.repeat-speech-bubble::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-top: 12px solid white;
+}
+
+.repeat-speech-bubble::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-top: 14px solid #ff6b8b;
+    z-index: -1;
+}
+
+.repeat-subtext {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 8px;
+    font-style: italic;
+}
+
+.repeat-journey-btn {
+    padding: 15px 35px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(45deg, #ff6b8b, #ff8e53);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    box-shadow: 0 5px 15px rgba(255,107,139,0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.repeat-journey-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 25px rgba(255,107,139,0.6);
+}
+
+.repeat-journey-btn:active {
+    transform: translateY(-1px) scale(1.02);
+}
+
+.repeat-loading {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #666;
+    font-size: 1rem;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #ff6b8b;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* Lightbox */
@@ -685,6 +816,21 @@ html, body {
     .main-image img {
         height: 300px;
     }
+    
+    .repeat-container {
+        padding: 30px 20px;
+        margin: 0 20px;
+    }
+    
+    .repeat-speech-bubble {
+        padding: 15px 20px;
+        font-size: 1rem;
+    }
+    
+    .repeat-journey-btn {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -712,5 +858,28 @@ html, body {
     .share-btn {
         width: 100%;
         max-width: 200px;
+    }
+    
+    .repeat-container {
+        padding: 25px 15px;
+    }
+    
+    .repeat-ducky {
+        width: 80px;
+    }
+    
+    .repeat-speech-bubble {
+        max-width: 250px;
+        padding: 12px 18px;
+        font-size: 0.9rem;
+    }
+    
+    .repeat-journey-btn {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+    
+    .repeat-loading {
+        font-size: 0.9rem;
     }
 }
