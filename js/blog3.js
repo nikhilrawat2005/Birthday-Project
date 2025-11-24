@@ -3,11 +3,14 @@ class Blog3Experience {
         this.audio = document.getElementById('bg-music');
         this.isPlaying = false;
         this.hasStarted = false;
+        this.sections = document.querySelectorAll('.story-section');
+        this.closingNote = document.querySelector('.closing-note');
         this.init();
     }
 
     init() {
         this.setupAudio();
+        this.setupScrollAnimations();
         this.startExperience();
         this.createFinalCelebration();
     }
@@ -15,7 +18,7 @@ class Blog3Experience {
     setupAudio() {
         // Set audio to start from 10 seconds
         this.audio.currentTime = 10;
-        this.audio.volume = 0.7;
+        this.audio.volume = 0.6;
 
         // Auto-play after animations
         setTimeout(() => {
@@ -29,22 +32,57 @@ class Blog3Experience {
         this.audio.play().then(() => {
             this.isPlaying = true;
             this.hasStarted = true;
+            document.querySelector('.audio-control').textContent = '🔊';
         }).catch(error => {
             console.log('Audio play failed:', error);
         });
     }
 
+    setupScrollAnimations() {
+        // Intersection Observer for section animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    
+                    // Add staggered animation for gallery items
+                    const galleryItems = entry.target.querySelectorAll('.gallery-item, .phadi-item, .gift-item, .food-item, .nickname-item, .final-gallery-item');
+                    galleryItems.forEach((item, index) => {
+                        setTimeout(() => {
+                            item.classList.add('visible');
+                        }, index * 100);
+                    });
+                }
+            });
+        }, { threshold: 0.1 });
+
+        this.sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        // Observe closing note separately
+        const closingNoteObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.3 });
+
+        closingNoteObserver.observe(this.closingNote);
+    }
+
     startExperience() {
-        // Initial animations are handled by CSS
         this.createFloatingElements();
     }
 
     createFloatingElements() {
         // Create additional floating celebration elements
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 12; i++) {
             setTimeout(() => {
                 const element = document.createElement('div');
-                const types = ['🎉', '🎊', '🌟', '💫', '✨', '🎁', '🎀', '👑'];
+                const types = ['🎉', '🎊', '🌟', '💫', '✨', '🎁', '🎀', '👑', '💖', '🥳', '🌻', '🐱'];
                 element.textContent = types[Math.floor(Math.random() * types.length)];
                 element.style.cssText = `
                     position: fixed;
@@ -58,7 +96,7 @@ class Blog3Experience {
                 `;
                 
                 document.body.appendChild(element);
-            }, i * 600);
+            }, i * 500);
         }
         
         // Add celebration animation
@@ -94,7 +132,7 @@ class Blog3Experience {
         setTimeout(() => {
             this.createConfettiStorm();
             this.playFinalCelebrationSound();
-        }, 4000);
+        }, 5000);
     }
 
     createConfettiStorm() {
@@ -112,10 +150,10 @@ class Blog3Experience {
         document.body.appendChild(confettiContainer);
 
         const colors = ['#ff6b8b', '#ff8e53', '#4facfe', '#00f2fe', '#a8e6cf', '#dcedc1', '#ffd700', '#ff69b4'];
-        const emojis = ['🎉', '✨', '🌟', '💫', '🎊', '💖', '🥳', '🎂', '🎁', '🎀'];
+        const emojis = ['🎉', '✨', '🌟', '💫', '🎊', '💖', '🥳', '🎂', '🎁', '🎀', '🌻', '🐱'];
 
         // Create a storm of confetti
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 150; i++) {
             setTimeout(() => {
                 const confetti = document.createElement('div');
                 confetti.style.cssText = `
@@ -167,7 +205,7 @@ class Blog3Experience {
                 setTimeout(() => {
                     confetti.remove();
                 }, 3000);
-            }, i * 30);
+            }, i * 20);
         }
 
         setTimeout(() => {
@@ -193,7 +231,7 @@ class Blog3Experience {
                     oscillator.type = 'sine';
                     oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
                     
-                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                    gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
                     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
                     
                     oscillator.start(audioContext.currentTime);

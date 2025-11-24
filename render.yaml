@@ -1,10 +1,12 @@
 services:
   - type: web
-    name: birthday-surprise-backend
+    name: birthday-surprise
     env: python
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    startCommand: python backend/app.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.9.0
+      - key: DEBUG
+        value: "false"

@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Final Birthday Surprise! 🎁</title>
+    <title>Prisha - My Kittu | Birthday Story</title>
+    <meta name="description" content="A beautiful birthday journey celebrating Prisha - from childhood memories to heartfelt wishes and eternal love">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,8 +15,11 @@
 <body>
     <!-- Audio Elements -->
     <audio id="bg-music" loop>
-        <source src="assets/audio/darudesi.mp3" type="audio/mpeg">
+        <source src="blogs/blog3/audio/song.mp4" type="audio/mpeg">
     </audio>
+
+    <!-- Audio Control -->
+    <button class="audio-control" onclick="toggleAudio()">🎵</button>
 
     <!-- Main Scene -->
     <div class="birthday-scene">
@@ -33,117 +37,325 @@
             <header class="birthday-header">
                 <div class="title-container">
                     <h1 class="main-title">
-                        <span class="title-word">Final</span>
-                        <span class="title-word">Birthday</span>
-                        <span class="title-word">Surprise!</span>
+                        <span class="title-word">My</span>
+                        <span class="title-word">Kittu's</span>
+                        <span class="title-word">Story</span>
                     </h1>
-                    <div class="subtitle">The grand finale of your birthday celebration! 🎊</div>
+                    <div class="subtitle">A journey through memories, love, and beautiful moments 🎊</div>
                 </div>
             </header>
 
-            <!-- Message Content -->
-            <main class="birthday-content">
-                <article class="love-message">
-                    <div class="message-frame">
-                        <div class="message-content">
-                            <div class="message-opening">
-                                <span class="decorative-crown">👑</span>
-                                <h2>To the Birthday Queen,</h2>
-                            </div>
-
-                            <div class="message-text-container">
-                                <p class="message-paragraph">
-                                    You've made it to the final surprise! 🎉
-                                </p>
-                                
-                                <p class="message-paragraph">
-                                    This journey through different pages was designed to show you just how special you are. 
-                                    Each message, each wish, each memory - they all come together to create this beautiful celebration of YOU!
-                                </p>
-                                
-                                <p class="message-paragraph">
-                                    As we reach the end of this digital birthday adventure, I want you to know:
-                                </p>
-                                
-                                <div class="final-wishes">
-                                    <div class="wish-item">
-                                        <span class="wish-icon">💝</span>
-                                        <p>You are loved more than words can express</p>
-                                    </div>
-                                    <div class="wish-item">
-                                        <span class="wish-icon">🌟</span>
-                                        <p>You shine brighter than any star in the sky</p>
-                                    </div>
-                                    <div class="wish-item">
-                                        <span class="wish-icon">🎯</span>
-                                        <p>You can achieve anything you dream of</p>
-                                    </div>
-                                    <div class="wish-item">
-                                        <span class="wish-icon">🤗</span>
-                                        <p>You make the world a better place just by being in it</p>
-                                    </div>
-                                </div>
-                                
-                                <p class="message-paragraph">
-                                    Thank you for being the amazing person that you are. 
-                                    Thank you for the laughter, the memories, and the beautiful friendship.
-                                </p>
-                                
-                                <p class="final-message">
-                                    May this year be your best one yet, filled with endless joy, love, and wonderful adventures! 
-                                </p>
-                            </div>
-
-                            <div class="message-signature">
-                                <div class="signature-line"></div>
-                                <p class="signature-text">Forever your friend,<br>Someone who cherishes you deeply</p>
-                            </div>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Final Celebration -->
-                <section class="celebration-section">
-                    <h3 class="celebration-title">You've Completed the Birthday Journey! 🏆</h3>
-                    <div class="celebration-content">
-                        <p class="celebration-text">
-                            You've unlocked all the special messages and surprises! 
-                            This concludes your personalized birthday experience.
+            <!-- Section 1: Childhood -->
+            <section class="story-section" id="childhood">
+                <div class="section-content">
+                    <div class="text-content">
+                        <!-- CHANGED: Enhanced childhood paragraph -->
+                        <p class="story-paragraph">
+                            Here's my cute little baccha — jo childhood se hi itni adorable rahi hai. 
+                            Ghar me sabse badi hoke bhi sabse zyada responsible, sabke liye stand lene wali. 
+                            Mujhe pata hai tumne bachpan se kya–kya dekha hai, kitna handle kiya hai, 
+                            aur fir bhi aaj bhi tum itni soft, itni pyaari, itni pure dil ki ho. 
+                            Ye chotu sa baccha dheere–dheere grow hote–hote aaj 18 tak pahunch raha hai — 
+                            and I'm genuinely so proud of the person you've become, 
+                            my little Kittu, my bacchu. 💖
                         </p>
-                        <div class="celebration-animation">
-                            <div class="firework"></div>
-                            <div class="firework"></div>
-                            <div class="firework"></div>
+                    </div>
+                    <div class="image-gallery childhood-gallery">
+                        <div class="gallery-item">
+                            <img src="blogs/blog3/images/01_prisha_baby.jpg" alt="Prisha as a baby, smiling" loading="lazy">
+                            <div class="caption">My chotu — bachpan se hi itni innocent ✨</div>
+                        </div>
+                        <div class="gallery-item">
+                            <img src="blogs/blog3/images/02_prisha_home_family.jpg" alt="Prisha with family at home" loading="lazy">
+                            <div class="caption">Ghar ki sabse badi, sabse zimmedar — hamari ladki</div>
+                        </div>
+                        <div class="gallery-item">
+                            <img src="blogs/blog3/images/03_prisha_childhood_fun.jpg" alt="Prisha doing a childhood mischief" loading="lazy">
+                            <div class="caption">Woh hone wali yaadein jo humesha saath rahengi</div>
+                        </div>
+                        <div class="gallery-item">
+                            <img src="blogs/blog3/images/04_prisha_teen_smile.jpg" alt="Teen Prisha smiling" loading="lazy">
+                            <div class="caption">Bade hote-hote pyaar se chamak gayi — 18 ka safar</div>
+                        </div>
+                        <div class="gallery-item">
+                            <img src="blogs/blog3/images/05_prisha_farewell.jpg" alt="Prisha at farewell party" loading="lazy">
+                            <div class="caption">Farewell look — ek nayi shuruaat</div>
                         </div>
                     </div>
-                </section>
-            </main>
+                </div>
+            </section>
 
-            <!-- Final Footer -->
+            <!-- Section 2: Phadi Look -->
+            <section class="story-section" id="phadi-look">
+                <div class="section-content reverse">
+                    <div class="text-content">
+                        <!-- CHANGED: Enhanced phadi paragraph -->
+                        <p class="story-paragraph">
+                            Ye cute pyaara baccha mera technically non–phadi hai, 
+                            lekin jab phadi look me aati hai na… sach me pahadiyon ki bhi cheekhein nikal jaayein! 😭🔥 
+                            Meri phadi Byoli, jiske eyes aise lagte hain jaise koi soft pahadi song chal raha ho 
+                            aur seedha meri taraf bula raha ho. 
+                            Shaadi ke baad main tujhe itni saari pahadi jewellery dilaunga ki har roz tu naya look try karegi, 
+                            aur main har baar dobara se tumpe fida ho jaunga. 
+                            Itni sundar bandi ke saath zindagi imagine karta hu to future genuinely bohot safe, 
+                            soft aur sukoon wala lagta hai.
+                        </p>
+                    </div>
+                    <div class="image-gallery phadi-gallery">
+                        <div class="main-image">
+                            <img src="blogs/blog3/images/06_prisha_casual.jpg" alt="Prisha casual portrait" loading="lazy">
+                            <div class="caption">Simple look, simple charm — but dil se real</div>
+                        </div>
+                        <div class="phadi-grid">
+                            <div class="phadi-item">
+                                <img src="blogs/blog3/images/07_prisha_phadi1.jpg" alt="Prisha in pahadi attire, close-up" loading="lazy">
+                                <div class="caption">Phadi Byoli — jab nazar milti hai toh gaana nikal aaye</div>
+                            </div>
+                            <div class="phadi-item">
+                                <img src="blogs/blog3/images/08_prisha_phadi2.jpg" alt="Prisha smiling in pahadi look" loading="lazy">
+                                <div class="caption">Byoli ka style — aankhon me pahadi geet</div>
+                            </div>
+                            <div class="phadi-item">
+                                <img src="blogs/blog3/images/09_prisha_phadi3.jpg" alt="Prisha in traditional jewellery" loading="lazy">
+                                <div class="caption">Shaadi ke baad yeh jewellery wale sapne honge</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Gifts & Memories -->
+            <section class="story-section" id="gifts-memories">
+                <div class="section-content">
+                    <div class="text-content">
+                        <!-- CHANGED: Enhanced gifts paragraph -->
+                        <p class="story-paragraph">
+                            Some of our most beautiful moments woh din the, 
+                            jab main tumhare liye sunflowers lekar aaya tha 🌻 
+                            Woh mera pehla time tha jab maine kisi ke liye itna special kuch plan kiya, 
+                            aur mujhe khushi hai ki woh "kisi" tum thi. 
+                            Tumhare diye hue har gift ka apna ek separate scene hai — 
+                            chahe wo buds ho, ring ho, ya kada — sab maine bohot pyaar se sambhal ke rakha hai. 
+                            Ek din jab hum saath ghoomne jayenge, main woh kada proudly pehnunga, 
+                            exactly jaisa tumne imagine kiya tha. 
+                            Aur tumhara diya hua keychain poori class ka favourite tha — 
+                            har koi usko dekhta tha aur mujhe andar se lagta tha, 
+                            "dekho, ye sab kuch meri bandi ka taste hai." 💫
+                        </p>
+                    </div>
+                    <div class="image-gallery gifts-gallery">
+                        <div class="gift-item" data-gift="sunflower">
+                            <img src="blogs/blog3/images/10_sunflowers_day.jpg" alt="Sunflowers from Nikhil to Prisha" loading="lazy">
+                            <div class="caption">Woh din — jab maine tumhare liye sunflowers laaye the 🌻</div>
+                        </div>
+                        <div class="gift-item" data-gift="candy">
+                            <img src="blogs/blog3/images/11_candy_gift.jpg" alt="Candy given on sunflower day" loading="lazy">
+                            <div class="caption">Choti-choti mithai, bada pyar</div>
+                        </div>
+                        <div class="gift-item" data-gift="buds">
+                            <img src="blogs/blog3/images/12_buds_gift.jpg" alt="Wireless buds gift" loading="lazy">
+                            <div class="caption">Buds — tumhara small yet precious gift</div>
+                        </div>
+                        <div class="gift-item" data-gift="ring">
+                            <img src="blogs/blog3/images/13_ring_gift.jpg" alt="Ring given by Prisha" loading="lazy">
+                            <div class="caption">Tumhara ring — mere liye ek promise</div>
+                        </div>
+                        <div class="gift-item" data-gift="kada">
+                            <img src="blogs/blog3/images/14_kada_gift.jpg" alt="Bangle/kada gifted by Prisha" loading="lazy">
+                            <div class="caption">Kada — ek din proudly pehnunga</div>
+                        </div>
+                        <div class="gift-item" data-gift="keychain">
+                            <img src="blogs/blog3/images/15_keychain.jpg" alt="Keychain gifted by Prisha" loading="lazy">
+                            <div class="caption">Woh keychain — pura class uski tareef karta tha</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Food & Nicknames -->
+            <section class="story-section" id="food-nicknames">
+                <div class="section-content reverse">
+                    <div class="text-content">
+                        <!-- CHANGED: Enhanced food paragraph -->
+                        <p class="story-paragraph">
+                            Mere bacchu ke haathon se banaya hua khana — by god, 
+                            har baar jab tumhare bheje hue food pics dekhta hu na, 
+                            seedha mood fresh ho jaata hai 😋 
+                            Tumhara banaya khana dekh ke hi itna swadist lagta hai ki 
+                            shaadi ke baad bas itna sapna hai ki roz tumhare saath 
+                            same table pe baith ke khana share karein. 
+                            Pehle hum sath me hasenge, baatein karenge, 
+                            phir har bite ke saath thoda–thoda aur pyaar add hoga. 
+                            Aur haan, mera baccha sirf cook nahi, meri cute si "machhli" bhi hai — 
+                            ye naam dadi ne diya tha us fish wali photo se. 
+                            Varna mere liye to tum hammesha wo bhiggi billi ho 
+                            jo barish me bheeg ke aur bhi zyada pyaari lagti hai — 
+                            ek choti si kitty jo literally baarish se dil se pyaar karti hai 🌧️🐱
+                        </p>
+                    </div>
+                    <div class="image-gallery food-gallery">
+                        <div class="food-main">
+                            <div class="food-item">
+                                <img src="blogs/blog3/images/16_food_plate.jpg" alt="Cooked dish by Prisha" loading="lazy">
+                                <div class="caption">Tumhare haathon ka khana — muh me paani aa jaata hai</div>
+                            </div>
+                            <div class="food-item">
+                                <img src="blogs/blog3/images/17_home_cooking.jpg" alt="Prisha cooking in home kitchen" loading="lazy">
+                                <div class="caption">Har photo se lagta hai tum kitchen ki queen ho</div>
+                            </div>
+                        </div>
+                        <div class="nickname-grid">
+                            <div class="nickname-item">
+                                <img src="blogs/blog3/images/18_cooking_smile.jpg" alt="Prisha smiling while cooking" loading="lazy">
+                                <div class="caption">Woh smile jab khana serve karti ho</div>
+                            </div>
+                            <div class="nickname-item">
+                                <img src="blogs/blog3/images/19_fish_in_hand.jpg" alt="Prisha holding fish sign/object" loading="lazy">
+                                <div class="caption">Machhli — dadi ne is naam se pukara tha</div>
+                            </div>
+                            <div class="nickname-item">
+                                <img src="blogs/blog3/images/20_rain_fun.jpg" alt="Prisha playing in rain" loading="lazy">
+                                <div class="caption">Bhiggi bili — barish me khelti hui</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Final Emotional -->
+            <section class="story-section" id="final-emotional">
+                <div class="section-content full-width">
+                    <div class="hero-final">
+                        <img src="blogs/blog3/images/21_best_portrait.jpg" alt="Best portrait of Prisha" class="hero-image">
+                        <div class="final-text-overlay">
+                            <p class="final-paragraph">
+                                Baccha, I can't even express how many beautiful changes came into my life after you entered it. 
+                                Tumhare aane ke baad sab kuch sudhar gaya hai, mai khud bhi. You've made my life the most 
+                                beautiful heaven on earth. You're truly the best thing that's ever happened to me.
+                            </p>
+                            <div class="love-names">
+                                I love you ❤️<br>
+                                my Kittu,<br>
+                                my baccha,<br>
+                                my Byoli,<br>
+                                my chotu shetan,<br>
+                                my bhiggi bili,<br>
+                                my machhli,<br>
+                                my gayiya,<br>
+                                my rasmalai,<br>
+                                my rasgulla,<br>
+                                my cute cute chotu 💖
+                            </div>
+                        </div>
+                    </div>
+                    <div class="final-gallery">
+                        <div class="final-gallery-item">
+                            <img src="blogs/blog3/images/22_smile_closeup.jpg" alt="Close-up of Prisha's smile" loading="lazy">
+                            <div class="caption">Tumhari smile — meri sabse badi taqat</div>
+                        </div>
+                        <div class="final-gallery-item">
+                            <img src="blogs/blog3/images/23_favourite_pose.jpg" alt="Prisha favourite pose" loading="lazy">
+                            <div class="caption">Meri favourite pose — meri favourite insaan</div>
+                        </div>
+                        <div class="final-gallery-item">
+                            <img src="blogs/blog3/images/24_aesthetic_frame.jpg" alt="Aesthetic portrait" loading="lazy">
+                            <div class="caption">Every frame tumse pyaara lagta hai</div>
+                        </div>
+                        <div class="final-gallery-item">
+                            <img src="blogs/blog3/images/25_soft_light.jpg" alt="Prisha under soft lighting" loading="lazy">
+                            <div class="caption">Soft light, softer heart — my chotu</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Final Closing Note -->
+            <div class="closing-note">
+                <!-- CHANGED: Enhanced closing message -->
+                <div class="handwritten-message">
+                    Forever yours.  
+                    Thank you for turning my zindagi into a place 
+                    that feels like home and heaven at the same time.  
+                    Happy 18th birthday, my Kittu — 
+                    I love you more than words, more than distance, 
+                    aur in saari pages se bhi zyada. ❤️
+                </div>
+            </div>
+
+            <!-- Footer -->
             <footer class="birthday-footer">
                 <div class="final-footer-content">
-                    <p class="final-message">Thank you for letting me be part of your special day! 💖</p>
+                    <p class="final-message">Thank you for being the most beautiful part of my life! 💖</p>
                     <div class="social-links">
-                        <button class="share-btn" onclick="shareCelebration()">Share the Joy 📤</button>
+                        <button class="share-btn" onclick="shareCelebration()">Share This Love Story 📤</button>
                     </div>
                 </div>
             </footer>
         </div>
     </div>
 
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox">
+        <span class="close-lightbox">&times;</span>
+        <div class="lightbox-content">
+            <img id="lightbox-image" src="" alt="">
+            <div id="lightbox-caption"></div>
+        </div>
+    </div>
+
     <script src="js/blog3.js"></script>
     <script>
+        function toggleAudio() {
+            const audio = document.getElementById('bg-music');
+            const button = document.querySelector('.audio-control');
+            
+            if (audio.paused) {
+                audio.play();
+                button.textContent = '🔊';
+            } else {
+                audio.pause();
+                button.textContent = '🎵';
+            }
+        }
+
         function shareCelebration() {
             if (navigator.share) {
                 navigator.share({
-                    title: 'Birthday Celebration!',
-                    text: 'Check out my amazing birthday surprise! 🎉',
+                    title: 'Prisha - My Kittu Birthday Story',
+                    text: 'Check out this beautiful birthday love story! 🎉',
                     url: window.location.href
                 });
             } else {
-                alert('Share this amazing birthday surprise with your friends! 🎉');
+                alert('Share this beautiful love story with your friends! 🎉');
             }
         }
+
+        // Lightbox functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-image');
+            const lightboxCaption = document.getElementById('lightbox-caption');
+            const closeBtn = document.querySelector('.close-lightbox');
+
+            // Add click events to all gallery images
+            document.querySelectorAll('.gallery-item img, .gift-item img, .food-item img, .nickname-item img, .final-gallery-item img').forEach(img => {
+                img.addEventListener('click', function() {
+                    lightbox.style.display = 'flex';
+                    lightboxImg.src = this.src;
+                    lightboxCaption.textContent = this.nextElementSibling.textContent;
+                });
+            });
+
+            closeBtn.addEventListener('click', function() {
+                lightbox.style.display = 'none';
+            });
+
+            lightbox.addEventListener('click', function(e) {
+                if (e.target === lightbox) {
+                    lightbox.style.display = 'none';
+                }
+            });
+        });
     </script>
 </body>
 </html>

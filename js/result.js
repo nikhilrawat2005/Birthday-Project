@@ -7,12 +7,9 @@ class ResultPage {
         this.currentScene = 'transition-scene';
         this.config = null;
 
+        // CHANGED: Only Blog3 for all scores
         this.pageMappingByScore = [
-            { min: 0, max: 4, page: 'blog1' },
-            { min: 5, max: 9, page: 'blog2' },
-            { min: 10, max: 14, page: 'blog3' },
-            { min: 15, max: 19, page: 'blog4' },
-            { min: 20, max: 9999, page: 'blog5' }
+            { min: 0, max: 9999, page: 'blog3' },
         ];
 
         this.init();
@@ -32,10 +29,6 @@ class ResultPage {
     async loadSessionData() {
         const session = await sessionManager.getSession();
 
-        // session may be null (no backend & no local fallback)
-        // support both shapes:
-        // 1) session.state.game.score  (preferred)
-        // 2) session.game.score (older/alternate)
         let score = 0;
         if (session) {
             if (session.state && session.state.game && typeof session.state.game.score !== 'undefined') {
@@ -43,7 +36,6 @@ class ResultPage {
             } else if (session.game && typeof session.game.score !== 'undefined') {
                 score = session.game.score;
             } else {
-                // fallback: check localStorage directly (extra safety)
                 try {
                     const localDataRaw = localStorage.getItem('birthdayLocalData');
                     if (localDataRaw) {
@@ -145,8 +137,10 @@ class ResultPage {
         const btnText = submitBtn?.querySelector('.btn-text');
         const spinner = submitBtn?.querySelector('.loading-spinner');
         const errorDiv = document.getElementById('password-error');
+        
+        // CHANGED: Default to blog3 instead of blog1
         const password = passwordInput?.value.trim() || '';
-        const targetPage = submitBtn?.dataset.targetPage || 'blog1';
+        const targetPage = submitBtn?.dataset.targetPage || 'blog3';
         if (!password) return this.showPasswordError('Please enter a password');
 
         if (btnText) btnText.style.display = 'none';

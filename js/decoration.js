@@ -35,7 +35,6 @@ class DecorationPage {
                 this.currentStep = 2;
             }
         } else {
-            // Start fresh flow
             this.startDecorationFlow();
         }
     }
@@ -43,6 +42,7 @@ class DecorationPage {
     bindEvents() {
         document.getElementById('add-balloons').addEventListener('click', () => {
             this.addBalloons();
+            this.createBalloonConfetti();
             document.getElementById('add-balloons').style.display = 'none';
             document.getElementById('add-cake').style.display = 'block';
             audioManager.playSfx('sfx_click.mp3');
@@ -51,8 +51,8 @@ class DecorationPage {
                 balloonsAdded: true 
             });
             
-            // Update ducky message
-            this.updateDuckySpeech("Now let's add a cake! 🎂");
+            // CHANGED: Enhanced message
+            this.updateDuckySpeech("Balloons perfect lag rahe hain! Ab sabse important cheez — ek cute sa cake add karte hain 🎂");
         });
 
         document.getElementById('add-cake').addEventListener('click', () => {
@@ -65,13 +65,18 @@ class DecorationPage {
                 cakeAdded: true 
             });
             
-            this.updateDuckySpeech("Perfect! Now let's cut the cake! 🍰");
+            // CHANGED: Enhanced message
+            this.updateDuckySpeech("Cake set ho gaya! Ab tumhare liye ek special cake-cutting moment banate hain 🍰");
         });
 
         document.getElementById('cut-cake').addEventListener('click', () => {
             audioManager.playSfx('sfx_cake_boom.mp3');
             this.createExplosion();
             this.createConfetti();
+            this.createFloatingHearts(); // NEW: Added floating hearts
+
+            // CHANGED: Enhanced message
+            this.updateDuckySpeech("Cake cut ho gaya, ab asli surprise ke game ke liye ready ho jao! 🎁");
             
             this.updateSessionState({ 
                 cakeCut: true 
@@ -85,20 +90,19 @@ class DecorationPage {
     }
 
     startDecorationFlow() {
-        // Show initial empty scene with ducky message
-        this.updateDuckySpeech("It feels empty... Let's add some decorations! 🎀");
+        // CHANGED: Enhanced initial message
+        this.updateDuckySpeech("Yaha sab thoda khali sa lag raha hai... chalo tumhare liye perfect decorations banate hain 🎀");
         
-        // Auto-add banner and clouds after a short delay
         setTimeout(() => {
             this.addBannerAndClouds();
             this.updateSessionState({ 
                 bannerAdded: true 
             });
             
-            // After banner appears, show balloon button and update message
             setTimeout(() => {
                 document.getElementById('add-balloons').style.display = 'block';
-                this.updateDuckySpeech("We should add balloons too! 🎈");
+                // CHANGED: Enhanced message
+                this.updateDuckySpeech("Banner aa gaya, ab thode cute balloons bhi add karte hain 🎈");
             }, 1000);
         }, 1500);
     }
@@ -119,7 +123,6 @@ class DecorationPage {
         banner.textContent = 'Happy Birthday, My Love!';
         bannerContainer.appendChild(banner);
 
-        // Animate banner in
         setTimeout(() => {
             banner.classList.add('show');
         }, 100);
@@ -132,12 +135,12 @@ class DecorationPage {
         cloudsContainer.innerHTML = '';
         
         const messages = [
-            "Best Wishes!",
-            "Happy Birthday!",
             "You're Amazing!",
             "So Special!",
             "Joy & Happiness!",
-            "Love You!"
+            "Love You!",
+            "Best Wishes!",
+            "Happy Birthday!"
         ];
         
         for (let i = 0; i < messages.length; i++) {
@@ -146,7 +149,6 @@ class DecorationPage {
                 cloud.className = 'cloud';
                 cloud.textContent = messages[i];
                 
-                // Vertical placement
                 const baseTop = 12 + i * 12;
                 const jitter = Math.floor(Math.random() * 8);
                 cloud.style.top = `${Math.min(82, baseTop + jitter)}%`;
@@ -154,7 +156,6 @@ class DecorationPage {
                 cloud.style.animationDelay = `${i * 2.2}s`;
                 cloudsContainer.appendChild(cloud);
                 
-                // Smooth appearance
                 requestAnimationFrame(() => cloud.classList.add('show'));
             }, i * 400);
         }
@@ -187,6 +188,57 @@ class DecorationPage {
                 
                 balloonsContainer.appendChild(balloon);
             }, i * 300);
+        }
+    }
+
+    createBalloonConfetti() {
+        const confettiContainer = document.createElement('div');
+        confettiContainer.className = 'confetti-container balloon-confetti';
+        document.querySelector('.scene').appendChild(confettiContainer);
+
+        for (let i = 0; i < 40; i++) {
+            setTimeout(() => {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti balloon-confetti-piece';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
+                confetti.style.animationDelay = `${Math.random() * 1.5}s`;
+                confettiContainer.appendChild(confetti);
+
+                setTimeout(() => {
+                    confetti.remove();
+                }, 4000);
+            }, i * 30);
+        }
+
+        setTimeout(() => {
+            confettiContainer.remove();
+        }, 5000);
+    }
+
+    // NEW: Create floating hearts effect
+    createFloatingHearts() {
+        const scene = document.querySelector('.scene');
+        if (!scene) return;
+
+        const heartCount = 20;
+
+        for (let i = 0; i < heartCount; i++) {
+            setTimeout(() => {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.textContent = '♥';
+
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.bottom = `${Math.random() * 20}px`;
+                heart.style.animationDelay = `${Math.random() * 2}s`;
+
+                scene.appendChild(heart);
+
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }, i * 120);
         }
     }
 
