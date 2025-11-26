@@ -12,6 +12,12 @@ class InputManager {
         
         this.handlers = [];
         this.initialized = false;
+        this.isMobile = this.checkMobile();
+        this.touchId = null;
+    }
+
+    checkMobile() {
+        return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     }
 
     bindKeyboard() {
@@ -32,27 +38,61 @@ class InputManager {
         if (!canvas) return;
 
         const pointerHandler = (e) => {
+            e.preventDefault();
             const rect = canvas.getBoundingClientRect();
             this.state.pointerX = e.clientX - rect.left;
             this.state.pointerY = e.clientY - rect.top;
             this.state.pointerActive = true;
+            
+            // Store touch ID for mobile to handle multiple touches
+            if (e.pointerType === 'touch') {
+                this.touchId = e.pointerId;
+            }
         };
 
         const pointerEnd = () => {
             this.state.pointerActive = false;
+            this.touchId = null;
         };
 
-        canvas.addEventListener('pointermove', pointerHandler);
-        canvas.addEventListener('pointerdown', pointerHandler);
-        canvas.addEventListener('pointerup', pointerEnd);
-        canvas.addEventListener('pointerleave', pointerEnd);
+        // Use pointer events for better mobile support
+        canvas.addEventListener('pointermove', pointerHandler, { passive: false });
+        canvas.addEventListener('pointerdown', pointerHandler, { passive: false });
+        canvas.addEventListener('pointerup', pointerEnd, { passive: false });
+        canvas.addEventListener('pointerleave', pointerEnd, { passive: false });
+        canvas.addEventListener('pointercancel', pointerEnd, { passive: false });
 
         this.handlers.push(
             { type: 'pointermove', handler: pointerHandler, element: canvas },
             { type: 'pointerdown', handler: pointerHandler, element: canvas },
             { type: 'pointerup', handler: pointerEnd, element: canvas },
-            { type: 'pointerleave', handler: pointerEnd, element: canvas }
+            { type: 'pointerleave', handler: pointerEnd, element: canvas },
+            { type: 'pointercancel', handler: pointerEnd, element: canvas }
         );
+
+        // Prevent context menu on long press
+        canvas.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            return false;
+        });
+
+        // Mobile-specific optimizations
+        if (this.isMobile) {
+            this.optimizeForMobile(canvas);
+        }
+    }
+
+    optimizeForMobile(canvas) {
+        // Prevent elastic scrolling on mobile
+        canvas.addEventListener('touchmove', (e) => {
+            if (this.state.pointerActive) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        // Improve touch response
+        canvas.style.touchAction = 'none';
+        canvas.style.webkitTapHighlightColor = 'transparent';
     }
 
     bindTouchButtons(containerSelector) {
@@ -63,12 +103,30 @@ class InputManager {
         const rightBtn = container.querySelector('.right-btn');
 
         if (leftBtn) {
-            const leftStart = () => this.state.left = true;
-            const leftEnd = () => this.state.left = false;
+            const leftStart = (e) => {
+                e.preventDefault();
+                this.state.left = true;
+                leftBtn.style.transform = 'scale(0.9)';
+                leftBtn.style.backgroundColor = 'rgba(255, 107, 139, 0.3)';
+                
+                // Haptic feedback on mobile
+                if (this.isMobile && navigator.vibrate) {
+                    navigator.vibrate(10);
+                }
+            };
+            const leftEnd = (e) => {
+                e.preventDefault();
+                this.state.left = false;
+                leftBtn.style.transform = 'scale(1)';
+                leftBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+            };
             
-            leftBtn.addEventListener('touchstart', leftStart);
-            leftBtn.addEventListener('touchend', leftEnd);
-            leftBtn.addEventListener('touchcancel', leftEnd);
+            // Touch events for mobile
+            leftBtn.addEventListener('touchstart', leftStart, { passive: false });
+            leftBtn.addEventListener('touchend', leftEnd, { passive: false });
+            leftBtn.addEventListener('touchcancel', leftEnd, { passive: false });
+            
+            // Mouse events for desktop
             leftBtn.addEventListener('mousedown', leftStart);
             leftBtn.addEventListener('mouseup', leftEnd);
             leftBtn.addEventListener('mouseleave', leftEnd);
@@ -84,12 +142,30 @@ class InputManager {
         }
 
         if (rightBtn) {
-            const rightStart = () => this.state.right = true;
-            const rightEnd = () => this.state.right = false;
+            const rightStart = (e) => {
+                e.preventDefault();
+                this.state.right = true;
+                rightBtn.style.transform = 'scale(0.9)';
+                rightBtn.style.backgroundColor = 'rgba(255, 107, 139, 0.3)';
+                
+                // Haptic feedback on mobile
+                if (this.isMobile && navigator.vibrate) {
+                    navigator.vibrate(10);
+                }
+            };
+            const rightEnd = (e) => {
+                e.preventDefault();
+                this.state.right = false;
+                rightBtn.style.transform = 'scale(1)';
+                rightBtn.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+            };
             
-            rightBtn.addEventListener('touchstart', rightStart);
-            rightBtn.addEventListener('touchend', rightEnd);
-            rightBtn.addEventListener('touchcancel', rightEnd);
+            // Touch events for mobile
+            rightBtn.addEventListener('touchstart', rightStart, { passive: false });
+            rightBtn.addEventListener('touchend', rightEnd, { passive: false });
+            rightBtn.addEventListener('touchcancel', rightEnd, { passive: false });
+            
+            // Mouse events for desktop
             rightBtn.addEventListener('mousedown', rightStart);
             rightBtn.addEventListener('mouseup', rightEnd);
             rightBtn.addEventListener('mouseleave', rightEnd);
@@ -122,20 +198,47 @@ class InputManager {
             pointerY: 0,
             pointerActive: false
         };
+        
+        this.touchId = null;
     }
 
-    // Throttle pointer events for performance
+    // Enhanced throttle for mobile performance
     throttle(callback, delay) {
         let lastCall = 0;
+        let timeoutId;
+        
         return function (...args) {
             const now = Date.now();
-            if (now - lastCall >= delay) {
+            const timeSinceLastCall = now - lastCall;
+            
+            if (timeSinceLastCall >= delay) {
                 lastCall = now;
                 callback.apply(this, args);
+            } else {
+                // Clear existing timeout and set new one
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    lastCall = Date.now();
+                    callback.apply(this, args);
+                }, delay - timeSinceLastCall);
             }
         };
+    }
+
+    // Mobile-specific method to handle orientation
+    handleOrientationChange() {
+        if (this.isMobile) {
+            // Reset input state on orientation change
+            this.state.left = false;
+            this.state.right = false;
+            this.state.pointerActive = false;
+        }
     }
 }
 
 const inputManager = new InputManager();
+
+// Export for global access
+window.inputManager = inputManager;
+
 export default inputManager;

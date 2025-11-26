@@ -6,9 +6,10 @@ class KittyGame {
     constructor() {
         this.canvas = null;
         this.ctx = null;
+        this.isMobile = this.checkMobile();
         this.gameState = {
             score: 0,
-            timeLeft: 60,
+            timeLeft: this.isMobile ? 45 : 60,
             gameActive: false,
             bucket: null,
             kitties: [],
@@ -16,6 +17,7 @@ class KittyGame {
             bucketImage: null
         };
 
+        // Adjust for mobile performance
         this.KITTY_IMAGES = [
             'assets/images/kitty_01.png',
             'assets/images/kitty_02.png', 
@@ -28,8 +30,14 @@ class KittyGame {
         this.spawnTimeouts = [];
         this.animationFrameId = null;
         this.isPaused = false;
+        this.lastSpawnTime = 0;
+        this.spawnRate = this.isMobile ? 1000 : 800;
 
         this.init();
+    }
+
+    checkMobile() {
+        return window.innerWidth <= 768 || 'ontouchstart' in window;
     }
 
     async init() {
@@ -37,6 +45,62 @@ class KittyGame {
         this.setupEventListeners();
         this.showInstructions();
         this.checkOrientation();
+        this.optimizeForMobile();
+    }
+
+    optimizeForMobile() {
+        // Adjust game parameters for mobile
+        if (this.isMobile) {
+            this.gameState.timeLeft = 45; // Shorter game on mobile
+            this.spawnRate = 1000; // Slower spawn rate
+        } else {
+            this.gameState.timeLeft = 60;
+            this.spawnRate = 800;
+        }
+
+        // Setup viewport handler
+        this.setupViewportHandler();
+
+        // Add mobile class for CSS targeting
+        if (this.isMobile) {
+            document.body.classList.add('mobile-device');
+            document.body.classList.add('game-mobile');
+        }
+
+        // Reduce maximum kitties for mobile performance
+        this.maxKitties = this.isMobile ? 8 : 12;
+    }
+
+    setupViewportHandler() {
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+        const debouncedResize = this.debounce(() => {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+            this.handleResize();
+        }, 250);
+
+        window.addEventListener('resize', debouncedResize);
+
+        // Handle orientation changes
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                let vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+                this.handleOrientationChange();
+            }, 300);
+        });
+    }
+
+    handleOrientationChange() {
+        if (this.isMobile) {
+            // Reinitialize game on orientation change
+            setTimeout(() => {
+                this.handleResize();
+                this.checkOrientation();
+            }, 500);
+        }
     }
 
     async setupGame() {
@@ -71,6 +135,11 @@ class KittyGame {
         // Scale context
         this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         this.ctx.imageSmoothingEnabled = true;
+        
+        // Mobile performance optimization
+        if (this.isMobile) {
+            this.ctx.imageSmoothingQuality = 'low';
+        }
     }
 
     async loadGameImages() {
@@ -110,15 +179,24 @@ class KittyGame {
     }
 
     setupGameState() {
+        // Adjust bucket size for mobile
+        const bucketWidth = this.isMobile ? 
+            Math.min(100, this.canvas.clientWidth * 0.18) :
+            Math.min(120, this.canvas.clientWidth * 0.15);
+
+        const bucketHeight = this.isMobile ?
+            Math.min(100, this.canvas.clientHeight * 0.16) :
+            Math.min(120, this.canvas.clientHeight * 0.195);
+
         this.gameState = {
             score: 0,
-            timeLeft: 60,
+            timeLeft: this.isMobile ? 45 : 60,
             gameActive: false,
             bucket: { 
-                x: this.canvas.clientWidth / 2 - 60,
-                y: this.canvas.clientHeight - 100, 
-                width: Math.min(120, this.canvas.clientWidth * 0.15),
-                height: Math.min(120, this.canvas.clientHeight * 0.195)
+                x: this.canvas.clientWidth / 2 - bucketWidth / 2,
+                y: this.canvas.clientHeight - (this.isMobile ? 80 : 100), 
+                width: bucketWidth,
+                height: bucketHeight
             },
             kitties: [],
             kittyImages: this.gameState.kittyImages,
@@ -159,33 +237,60 @@ class KittyGame {
             leftBtn.addEventListener('click', () => this.moveBucketLeft());
             rightBtn.addEventListener('click', () => this.moveBucketRight());
         }
+
+        // Mobile-specific: pause on touch outside game area
+        if (this.isMobile) {
+            document.addEventListener('touchstart', (e) => {
+                if (!this.canvas.contains(e.target) && 
+                    !e.target.closest('.touch-controls') && 
+                    this.gameState.gameActive && 
+                    !this.isPaused) {
+                    this.pauseGame();
+                }
+            });
+        }
     }
 
     setupTouchControls() {
         const touchControls = document.getElementById('touch-controls');
-        if (touchControls && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
+        if (touchControls && (this.isMobile || 'ontouchstart' in window)) {
             touchControls.style.display = 'flex';
+            
+            // Mobile performance: reduce touch control opacity when not active
+            touchControls.style.opacity = '0.9';
         }
     }
 
     showInstructions() {
+        // Remove existing instructions
+        const existingInstructions = document.querySelector('.game-instructions');
+        if (existingInstructions) {
+            existingInstructions.remove();
+        }
+
         const instructions = document.createElement('div');
         instructions.className = 'game-instructions';
+        
+        const mobileInstructions = this.isMobile ? 
+            '<li>👆 Touch and drag to move</li><li>🎯 Or use touch buttons</li>' : 
+            '<li>🎮 Use arrow keys to move</li>';
+            
         instructions.innerHTML = `
             <h3>How to Play</h3>
             <ul>
-                <li>🎮 Use arrow keys or touch to move</li>
+                ${mobileInstructions}
                 <li>🐱 Catch falling kitties</li>
-                <li>⏱️ 60 seconds timer</li>
+                <li>⏱️ ${this.gameState.timeLeft} seconds timer</li>
                 <li>⏸️ Press P to pause</li>
             </ul>
         `;
         document.querySelector('.scene').appendChild(instructions);
 
-        // Auto-hide instructions after 5 seconds
+        // Auto-hide instructions after 5 seconds on mobile, 8 on desktop
+        const hideDelay = this.isMobile ? 5000 : 8000;
         setTimeout(() => {
             instructions.style.opacity = '0.7';
-        }, 5000);
+        }, hideDelay);
     }
 
     startGame() {
@@ -196,7 +301,23 @@ class KittyGame {
         this.spawnKitties();
         this.gameLoop();
         
-        audioManager.playBg('bg_game_loop.mp3');
+        // Initialize audio with mobile considerations
+        if (!this.isMobile) {
+            audioManager.playBg('bg_game_loop.mp3');
+        } else {
+            this.setupMobileAudio();
+        }
+    }
+
+    setupMobileAudio() {
+        // Auto-play audio after first user interaction on mobile
+        const enableAudio = () => {
+            audioManager.handleUserInteraction();
+            audioManager.playBg('bg_game_loop.mp3').catch(() => {});
+            document.removeEventListener('touchstart', enableAudio);
+        };
+
+        document.addEventListener('touchstart', enableAudio, { once: true });
     }
 
     gameLoop() {
@@ -214,12 +335,14 @@ class KittyGame {
         // Draw bucket
         this.drawBucket();
 
-        // Draw motivational text
+        // Draw motivational text (smaller on mobile)
         this.ctx.fillStyle = '#ff6b8b';
-        const fontPx = Math.round(Math.max(14, Math.min(20, this.canvas.clientWidth * 0.03)));
+        const fontPx = this.isMobile ? 
+            Math.round(Math.max(12, Math.min(16, this.canvas.clientWidth * 0.035))) :
+            Math.round(Math.max(14, Math.min(20, this.canvas.clientWidth * 0.03)));
         this.ctx.font = `${fontPx}px Poppins`;
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('Catch the kitties with the bucket!', this.canvas.width / 2, 30);
+        this.ctx.fillText('Catch the kitties with the bucket!', this.canvas.width / 2, this.isMobile ? 25 : 30);
 
         // Update and draw kitties
         this.updateKitties();
@@ -248,11 +371,13 @@ class KittyGame {
 
     updateBucketPosition() {
         // Use inputManager state to move bucket
+        const moveSpeed = this.isMobile ? 8 : 10;
+        
         if (inputManager.state.left) {
-            this.gameState.bucket.x = Math.max(0, this.gameState.bucket.x - 10);
+            this.gameState.bucket.x = Math.max(0, this.gameState.bucket.x - moveSpeed);
         }
         if (inputManager.state.right) {
-            this.gameState.bucket.x = Math.min(this.canvas.clientWidth - this.gameState.bucket.width, this.gameState.bucket.x + 10);
+            this.gameState.bucket.x = Math.min(this.canvas.clientWidth - this.gameState.bucket.width, this.gameState.bucket.x + moveSpeed);
         }
 
         // Pointer takes precedence
@@ -264,11 +389,13 @@ class KittyGame {
     }
 
     moveBucketLeft() {
-        this.gameState.bucket.x = Math.max(0, this.gameState.bucket.x - 20);
+        const moveDistance = this.isMobile ? 15 : 20;
+        this.gameState.bucket.x = Math.max(0, this.gameState.bucket.x - moveDistance);
     }
 
     moveBucketRight() {
-        this.gameState.bucket.x = Math.min(this.canvas.clientWidth - this.gameState.bucket.width, this.gameState.bucket.x + 20);
+        const moveDistance = this.isMobile ? 15 : 20;
+        this.gameState.bucket.x = Math.min(this.canvas.clientWidth - this.gameState.bucket.width, this.gameState.bucket.x + moveDistance);
     }
 
     // PATCH: Fixed kitty update loop to prevent missed collisions
@@ -277,7 +404,9 @@ class KittyGame {
         for (let i = this.gameState.kitties.length - 1; i >= 0; i--) {
             const kitty = this.gameState.kitties[i];
 
-            kitty.y += kitty.speed;
+            // Adjust speed for mobile
+            const speedMultiplier = this.isMobile ? 0.9 : 1.0;
+            kitty.y += kitty.speed * speedMultiplier;
             kitty.x += kitty.vx;
             
             // Horizontal bounds
@@ -325,15 +454,28 @@ class KittyGame {
 
     spawnKitties() {
         if (!this.gameState.gameActive || this.isPaused) return;
+        
+        // Limit number of kitties for mobile performance
+        if (this.gameState.kitties.length >= this.maxKitties) {
+            const nextSpawn = this.spawnRate;
+            const t = setTimeout(() => {
+                this.spawnTimeouts = this.spawnTimeouts.filter(id => id !== t);
+                this.spawnKitties();
+            }, nextSpawn);
+            this.spawnTimeouts.push(t);
+            return;
+        }
 
         const colors = ['#FFDDE6', '#FFCCD5', '#FFB6C1', '#FFA8B8'];
-        const kittyRadius = Math.min(105, this.canvas.clientWidth * 0.12, this.canvas.clientHeight * 0.15);
+        const kittyRadius = this.isMobile ? 
+            Math.min(80, this.canvas.clientWidth * 0.1, this.canvas.clientHeight * 0.12) :
+            Math.min(105, this.canvas.clientWidth * 0.12, this.canvas.clientHeight * 0.15);
         
         const newKitty = {
             x: Math.random() * (this.canvas.clientWidth - kittyRadius * 2) + kittyRadius,
             y: -20,
             radius: kittyRadius,
-            speed: 1.5 + Math.random() * 1.5,
+            speed: this.isMobile ? 1.2 + Math.random() * 1.2 : 1.5 + Math.random() * 1.5,
             vx: (Math.random() - 0.5) * 0.4,
             color: colors[Math.floor(Math.random() * colors.length)],
             image: this.gameState.kittyImages[Math.floor(Math.random() * this.gameState.kittyImages.length)]
@@ -341,7 +483,7 @@ class KittyGame {
 
         this.gameState.kitties.push(newKitty);
 
-        const nextSpawn = 800 + Math.random() * 1200;
+        const nextSpawn = this.spawnRate + Math.random() * (this.isMobile ? 1400 : 1200);
         const t = setTimeout(() => {
             this.spawnTimeouts = this.spawnTimeouts.filter(id => id !== t);
             this.spawnKitties();
@@ -387,6 +529,11 @@ class KittyGame {
         // Save score to backend
         await this.saveScore();
 
+        // Haptic feedback on mobile
+        if (this.isMobile && navigator.vibrate) {
+            navigator.vibrate(200);
+        }
+
         audioManager.playSfx('sfx_success_jingle.mp3');
         setTimeout(() => {
             sessionManager.navigateTo('result');
@@ -398,7 +545,8 @@ class KittyGame {
             await sessionManager.updateSession({
                 game: {
                     score: this.gameState.score,
-                    completedAt: new Date().toISOString()
+                    completedAt: new Date().toISOString(),
+                    deviceType: this.isMobile ? 'mobile' : 'desktop'
                 }
             });
 
@@ -413,7 +561,8 @@ class KittyGame {
                     score: this.gameState.score,
                     meta: {
                         device: navigator.userAgent,
-                        time: new Date().toISOString()
+                        time: new Date().toISOString(),
+                        isMobile: this.isMobile
                     }
                 })
             });
@@ -427,7 +576,9 @@ class KittyGame {
         
         this.isPaused = true;
         this.showPauseOverlay();
-        audioManager.bgMusic.pause();
+        if (audioManager.bgMusic) {
+            audioManager.bgMusic.pause();
+        }
     }
 
     resumeGame() {
@@ -435,7 +586,9 @@ class KittyGame {
         
         this.isPaused = false;
         this.hidePauseOverlay();
-        audioManager.bgMusic.play().catch(e => console.log('Audio resume failed'));
+        if (audioManager.bgMusic) {
+            audioManager.bgMusic.play().catch(e => console.log('Audio resume failed'));
+        }
         this.gameLoop();
     }
 
@@ -452,20 +605,32 @@ class KittyGame {
         if (!overlay) {
             overlay = document.createElement('div');
             overlay.className = 'pause-overlay';
+            
+            const resumeText = this.isMobile ? 'Tap to resume' : 'Press P or click to resume';
+            
             overlay.innerHTML = `
                 <div class="pause-message">
                     <h2>Game Paused</h2>
-                    <p>Press P or click to resume</p>
+                    <p>${resumeText}</p>
                     <button class="btn primary" id="resume-btn">Resume Game</button>
                 </div>
             `;
             document.querySelector('.scene').appendChild(overlay);
 
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay || e.target.id === 'resume-btn') {
-                    this.resumeGame();
-                }
-            });
+            // Mobile: tap anywhere to resume
+            if (this.isMobile) {
+                overlay.addEventListener('touchstart', (e) => {
+                    if (e.target === overlay || e.target.id === 'resume-btn') {
+                        this.resumeGame();
+                    }
+                });
+            } else {
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay || e.target.id === 'resume-btn') {
+                        this.resumeGame();
+                    }
+                });
+            }
         }
         overlay.classList.add('active');
     }
@@ -478,14 +643,14 @@ class KittyGame {
     }
 
     checkOrientation() {
-        if (window.innerHeight > window.innerWidth) {
+        if (this.isMobile && window.innerHeight > window.innerWidth) {
             // Portrait mode - show warning for landscape preferred games
             this.showOrientationWarning();
         }
 
         window.addEventListener('orientationchange', () => {
             setTimeout(() => {
-                if (window.innerHeight > window.innerWidth) {
+                if (this.isMobile && window.innerHeight > window.innerWidth) {
                     this.showOrientationWarning();
                 } else {
                     this.hideOrientationWarning();
@@ -503,6 +668,9 @@ class KittyGame {
                 <div>
                     <h2>🎮 Rotate Your Device</h2>
                     <p>For the best gaming experience, please rotate your device to landscape mode.</p>
+                    <button class="btn primary" onclick="this.closest('.orientation-warning').classList.remove('active')">
+                        Continue Anyway
+                    </button>
                 </div>
             `;
             document.querySelector('.scene').appendChild(warning);
@@ -521,10 +689,18 @@ class KittyGame {
         this.setupCanvas().then(() => {
             // Adjust bucket position and size
             if (this.gameState.bucket) {
-                this.gameState.bucket.width = Math.min(120, this.canvas.clientWidth * 0.15);
-                this.gameState.bucket.height = Math.min(120, this.canvas.clientHeight * 0.195);
+                const bucketWidth = this.isMobile ? 
+                    Math.min(100, this.canvas.clientWidth * 0.18) :
+                    Math.min(120, this.canvas.clientWidth * 0.15);
+
+                const bucketHeight = this.isMobile ?
+                    Math.min(100, this.canvas.clientHeight * 0.16) :
+                    Math.min(120, this.canvas.clientHeight * 0.195);
+
+                this.gameState.bucket.width = bucketWidth;
+                this.gameState.bucket.height = bucketHeight;
                 this.gameState.bucket.x = Math.max(0, this.canvas.clientWidth / 2 - this.gameState.bucket.width / 2);
-                this.gameState.bucket.y = this.canvas.clientHeight - 100;
+                this.gameState.bucket.y = this.canvas.clientHeight - (this.isMobile ? 80 : 100);
             }
         });
     }
@@ -535,22 +711,24 @@ class KittyGame {
 
         gameDecorations.innerHTML = '';
         
-        // Add decorative kitties on sides
-        for (let i = 0; i < 4; i++) {
+        // Add decorative kitties on sides (fewer on mobile)
+        const kittyCount = this.isMobile ? 2 : 4;
+        for (let i = 0; i < kittyCount; i++) {
             const kitty = document.createElement('div');
             kitty.className = 'game-kitty';
             kitty.textContent = '🐱';
-            kitty.style.left = i < 2 ? '20px' : 'auto';
-            kitty.style.right = i >= 2 ? '20px' : 'auto';
+            kitty.style.left = i < (kittyCount/2) ? '10px' : 'auto';
+            kitty.style.right = i >= (kittyCount/2) ? '10px' : 'auto';
             kitty.style.top = `${20 + (i % 2) * 40}%`;
             gameDecorations.appendChild(kitty);
         }
         
-        // Add decorative balloons
-        for (let i = 0; i < 6; i++) {
+        // Add decorative balloons (fewer on mobile)
+        const balloonCount = this.isMobile ? 4 : 6;
+        for (let i = 0; i < balloonCount; i++) {
             const balloon = document.createElement('div');
             balloon.className = 'game-balloon';
-            balloon.style.left = `${10 + i * 15}%`;
+            balloon.style.left = `${10 + i * (this.isMobile ? 20 : 15)}%`;
             balloon.style.top = '10%';
             balloon.style.animation = `float ${5 + i}s ease-in-out infinite`;
             gameDecorations.appendChild(balloon);
@@ -575,6 +753,19 @@ class KittyGame {
         
         inputManager.unbindAll();
         audioManager.stopAll();
+    }
+
+    // Utility function for debouncing
+    debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
     }
 }
 

@@ -5,81 +5,88 @@
     position: relative;
 }
 
+/* Canvas Container - Mobile first */
 .canvas-container {
     width: 100%;
-    max-width: 800px;
+    max-width: min(800px, 95vw);
     height: 60vh;
-    max-height: 600px;
+    max-height: min(500px, 70vh);
     display: flex;
     justify-content: center;
     align-items: center;
-    aspect-ratio: 4 / 3;
-    height: auto;
-    max-height: 70vh;
+    margin: 0 auto;
 }
 
 #game-canvas {
     border: 3px solid #ff6b8b;
-    border-radius: 15px;
+    border-radius: 12px;
     background: linear-gradient(180deg, #87CEEB, #E0F7FF);
     cursor: pointer;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     width: 100%;
     height: 100%;
-    max-width: 800px;
-    max-height: 600px;
+    touch-action: manipulation;
 }
 
+/* Game UI - Mobile optimized */
 .game-ui {
     position: absolute;
-    top: 20px;
-    right: 20px;
-    background: rgba(255,255,255,0.9);
-    padding: 15px;
-    border-radius: 15px;
-    font-size: clamp(16px, 4vw, 20px);
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+    background: rgba(255,255,255,0.95);
+    padding: var(--spacing-sm);
+    border-radius: 12px;
+    font-size: clamp(14px, 3.5vw, 20px);
     font-weight: bold;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     z-index: 20;
     display: flex;
-    gap: 15px;
+    gap: var(--spacing-sm);
     align-items: center;
+    flex-wrap: wrap;
+    max-width: min(200px, 45vw);
 }
 
 .mute-btn {
     background: none;
     border: none;
-    font-size: 1.5em;
+    font-size: 1.3em;
     cursor: pointer;
-    padding: 5px;
+    padding: 6px;
     border-radius: 50%;
     transition: background 0.3s;
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
 }
 
 .mute-btn:hover {
     background: rgba(0,0,0,0.1);
 }
 
-/* Touch Controls */
+/* Touch Controls - Mobile essential */
 .touch-controls {
     position: absolute;
-    bottom: 20px;
+    bottom: var(--spacing-sm);
     left: 0;
     right: 0;
     display: flex;
     justify-content: space-between;
-    padding: 0 20px;
+    padding: 0 var(--spacing-sm);
     z-index: 20;
     display: none;
 }
 
 .touch-btn {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.85);
     border: 3px solid #ff6b8b;
-    font-size: 2em;
+    font-size: 1.5em;
     color: #ff6b8b;
     display: flex;
     align-items: center;
@@ -88,7 +95,9 @@
     user-select: none;
     touch-action: manipulation;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    min-height: 70px;
+    min-width: 70px;
 }
 
 .touch-btn:active {
@@ -156,25 +165,25 @@
     }
 }
 
-/* Game instructions */
+/* Game instructions - Mobile optimized */
 .game-instructions {
     position: absolute;
-    top: 20px;
-    left: 20px;
-    background: rgba(255,255,255,0.9);
-    padding: 15px;
-    border-radius: 15px;
-    font-size: clamp(12px, 2.5vw, 14px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    top: var(--spacing-sm);
+    left: var(--spacing-sm);
+    background: rgba(255,255,255,0.95);
+    padding: var(--spacing-sm);
+    border-radius: 12px;
+    font-size: clamp(11px, 2.5vw, 14px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     z-index: 20;
-    max-width: 200px;
+    max-width: min(180px, 40vw);
     transition: opacity 0.3s ease;
 }
 
 .game-instructions h3 {
     color: #ff6b8b;
-    margin-bottom: 8px;
-    font-size: clamp(14px, 3vw, 16px);
+    margin-bottom: 6px;
+    font-size: clamp(12px, 3vw, 16px);
 }
 
 .game-instructions ul {
@@ -190,18 +199,18 @@
     gap: 5px;
 }
 
-/* High score display */
+/* High score display - Mobile optimized */
 .high-score {
     position: absolute;
-    top: 20px;
+    top: var(--spacing-sm);
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(255,255,255,0.9);
-    padding: 10px 20px;
-    border-radius: 15px;
-    font-size: clamp(14px, 3vw, 16px);
+    background: rgba(255,255,255,0.95);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: 12px;
+    font-size: clamp(12px, 3vw, 16px);
     font-weight: bold;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     z-index: 20;
 }
 
@@ -304,6 +313,58 @@
     text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
 }
 
+/* Tablet Styles */
+@media (min-width: 600px) {
+    .canvas-container {
+        height: 65vh;
+        max-height: min(550px, 75vh);
+    }
+    
+    .game-ui {
+        top: var(--spacing-md);
+        right: var(--spacing-md);
+        max-width: 220px;
+    }
+    
+    .game-instructions {
+        top: var(--spacing-md);
+        left: var(--spacing-md);
+        max-width: 200px;
+    }
+    
+    .high-score {
+        top: var(--spacing-md);
+    }
+    
+    .touch-controls {
+        bottom: var(--spacing-md);
+        padding: 0 var(--spacing-md);
+    }
+    
+    .touch-btn {
+        width: 80px;
+        height: 80px;
+        min-height: 80px;
+        min-width: 80px;
+    }
+}
+
+/* Desktop Styles */
+@media (min-width: 900px) {
+    .canvas-container {
+        height: 70vh;
+        max-height: 600px;
+    }
+    
+    .game-ui {
+        max-width: 250px;
+    }
+    
+    .game-instructions {
+        max-width: 220px;
+    }
+}
+
 /* Responsive adjustments for game */
 @media (max-width: 480px) {
     .game-ui {
@@ -338,27 +399,31 @@
     }
 }
 
+/* Orientation handling */
 @media (max-height: 500px) and (orientation: landscape) {
     .canvas-container {
         height: 80vh;
+        max-height: 85vh;
     }
     
     .touch-controls {
-        bottom: 10px;
+        bottom: var(--spacing-xs);
     }
     
     .touch-btn {
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
+        min-height: 60px;
+        min-width: 60px;
         font-size: 1.2em;
     }
     
     .game-instructions {
-        max-width: 120px;
+        max-width: min(140px, 30vw);
     }
 }
 
-/* Reduced motion */
+/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
     .game-balloon {
         animation: none;
@@ -366,5 +431,16 @@
     
     .touch-btn {
         transition: none;
+    }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+    #game-canvas {
+        border-width: 4px;
+    }
+    
+    .touch-btn {
+        border-width: 4px;
     }
 }

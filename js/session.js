@@ -3,11 +3,64 @@ class SessionManager {
         this.sessionId = null;
         // Use environment variable or fallback to current origin for API base
         this.apiBase = window.API_BASE || (window.location.origin + '/api');
+        this.isMobile = this.checkMobile();
         this.init();
+    }
+
+    checkMobile() {
+        return window.innerWidth <= 768 || 'ontouchstart' in window;
     }
 
     async init() {
         await this.getOrCreateSession();
+        this.setupMobileOptimizations();
+    }
+
+    setupMobileOptimizations() {
+        // Handle viewport height for mobile
+        this.setupViewportHandler();
+        
+        // Optimize for mobile performance
+        if (this.isMobile) {
+            this.reduceSessionDataSize();
+        }
+    }
+
+    setupViewportHandler() {
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+        window.addEventListener('resize', () => {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        });
+
+        // Handle orientation changes
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                let vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            }, 300);
+        });
+    }
+
+    reduceSessionDataSize() {
+        // Reduce session data stored locally for mobile
+        const originalStoreLocal = this.storeLocal;
+        this.storeLocal = function(updates) {
+            // Remove large data for mobile
+            const mobileUpdates = { ...updates };
+            if (mobileUpdates.state && mobileUpdates.state.decoration) {
+                // Keep only essential decoration data
+                mobileUpdates.state.decoration = {
+                    bannerAdded: mobileUpdates.state.decoration.bannerAdded,
+                    balloonsAdded: mobileUpdates.state.decoration.balloonsAdded,
+                    cakeAdded: mobileUpdates.state.decoration.cakeAdded,
+                    cakeCut: mobileUpdates.state.decoration.cakeCut
+                };
+            }
+            return originalStoreLocal.call(this, mobileUpdates);
+        };
     }
 
     async getOrCreateSession() {
@@ -126,7 +179,13 @@ class SessionManager {
                 throw new Error(`Session API returned ${response.status}`);
             }
 
-            return await response.json();
+            const session = await response.json();
+            
+            // NEW: Normalize session state to ensure consistent structure
+            session.state = session.state || {};
+            session.state.decoration = session.state.decoration || {};
+            
+            return session;
         } catch (error) {
             console.error('Failed to get session from API:', error);
 
@@ -241,7 +300,7 @@ class SessionManager {
         return {
             bannerText: 'Happy Birthday, My Love!',
             assets: {
-                balloons: 8,
+                balloons: this.isMobile ? 6 : 8,
                 cloudMessages: [
                     "Best Wishes!",
                     "Happy Birthday!",

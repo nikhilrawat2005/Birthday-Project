@@ -5,20 +5,23 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: var(--spacing-md);
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     position: relative;
     overflow: hidden;
 }
 
+/* Gate Ducky - Mobile first */
 .gate-ducky-container {
     position: relative;
-    margin-bottom: 40px;
+    margin-bottom: var(--spacing-lg);
     text-align: center;
+    width: 100%;
+    max-width: min(400px, 90vw);
 }
 
 .gate-ducky {
-    width: clamp(120px, 25vw, 180px);
+    width: clamp(100px, 30vw, 180px);
     height: auto;
     filter: drop-shadow(0 8px 20px rgba(0,0,0,0.3));
     transition: all 0.5s ease;
@@ -29,18 +32,19 @@
     filter: drop-shadow(0 12px 30px rgba(255,255,255,0.3));
 }
 
+/* Message Board - Mobile optimized */
 .gate-message-board {
     background: rgba(255, 255, 255, 0.95);
-    padding: 25px 30px;
-    border-radius: 20px;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    margin-top: 25px;
+    padding: var(--spacing-md);
+    border-radius: 16px;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.2);
+    margin-top: var(--spacing-md);
     border: 3px solid #ff6b8b;
     backdrop-filter: blur(10px);
     max-width: min(400px, 90vw);
     text-align: center;
     line-height: 1.6;
-    font-size: clamp(16px, 4vw, 18px);
+    font-size: clamp(15px, 4vw, 18px);
     color: #333;
     transition: all 0.5s ease;
 }
@@ -51,11 +55,12 @@
     transform: scale(1.02);
 }
 
+/* Password Form - Mobile first */
 .password-form-container {
     background: rgba(255, 255, 255, 0.9);
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    padding: var(--spacing-md);
+    border-radius: 16px;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.1);
     backdrop-filter: blur(10px);
     max-width: min(400px, 90vw);
     width: 100%;
@@ -64,7 +69,7 @@
 .gate-password-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--spacing-md);
 }
 
 .input-group {
@@ -73,13 +78,14 @@
 
 #gate-password-input {
     width: 100%;
-    padding: 18px 50px 18px 20px;
+    padding: var(--spacing-md) var(--spacing-xl) var(--spacing-md) var(--spacing-md);
     border: 2px solid #e0e0e0;
-    border-radius: 15px;
-    font-size: 16px;
+    border-radius: 12px;
+    font-size: clamp(16px, 4vw, 18px);
     transition: all 0.3s ease;
     background: #f8f9fa;
     font-family: 'Poppins', sans-serif;
+    min-height: 56px;
 }
 
 #gate-password-input:focus {
@@ -100,8 +106,8 @@
 }
 
 .gate-submit-btn {
-    padding: 18px 30px;
-    font-size: 18px;
+    padding: var(--spacing-md) var(--spacing-lg);
+    font-size: clamp(16px, 4vw, 18px);
     border: none;
     border-radius: 50px;
     background: linear-gradient(45deg, #ff6b8b, #ff8e53);
@@ -111,6 +117,11 @@
     font-weight: 600;
     position: relative;
     overflow: hidden;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
 }
 
 .gate-submit-btn:hover:not(:disabled) {
@@ -148,12 +159,14 @@
     font-size: 14px;
 }
 
+/* Secret Note - Mobile optimized */
 .secret-note {
-    margin-top: 30px;
+    margin-top: var(--spacing-lg);
     text-align: center;
     color: rgba(255, 255, 255, 0.8);
-    font-size: 14px;
+    font-size: clamp(12px, 3vw, 14px);
     font-style: italic;
+    max-width: min(400px, 90vw);
 }
 
 /* Shake animation */
@@ -187,6 +200,37 @@
     100% {
         transform: translateY(-100px) rotate(360deg);
         opacity: 0;
+    }
+}
+
+/* Tablet Styles */
+@media (min-width: 600px) {
+    .gate-container {
+        padding: var(--spacing-lg);
+    }
+    
+    .password-form-container {
+        padding: var(--spacing-lg);
+    }
+    
+    .gate-message-board {
+        padding: var(--spacing-lg);
+        margin-top: var(--spacing-lg);
+    }
+}
+
+/* Desktop Styles */
+@media (min-width: 900px) {
+    .gate-container {
+        padding: var(--spacing-xl);
+    }
+    
+    .password-form-container {
+        max-width: 450px;
+    }
+    
+    .gate-ducky-container {
+        max-width: 450px;
     }
 }
 
@@ -226,5 +270,23 @@
     
     .secret-note {
         font-size: 12px;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .gate-ducky {
+        transition: none;
+    }
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+    .gate-message-board {
+        border-width: 4px;
+    }
+    
+    #gate-password-input {
+        border-width: 3px;
     }
 }
